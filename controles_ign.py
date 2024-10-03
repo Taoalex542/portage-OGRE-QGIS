@@ -52,8 +52,11 @@ class Controles_IGN:
         # Save reference to the QGIS interface
         self.iface = iface
         self.dlg = Controles_IGNDialog()
+        self.dlg.setFixedSize(self.dlg.size())
         self.dlg2 = choix_couche()
+        self.dlg2.setFixedSize(self.dlg2.size())
         self.dlg3 = choix_controles()
+        self.dlg3.setFixedSize(self.dlg3.size())
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
