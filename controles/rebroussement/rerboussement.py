@@ -59,7 +59,7 @@ def read(self):
 
 
 
-# récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement tout)
+# récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self):
     quantity = 0
     canvas = qgis.utils.iface.mapCanvas() 
@@ -71,28 +71,29 @@ def get_quantity(self):
                 # récupère les informations des couches
                 for f in layers.getFeatures():
                     geom = f.geometry()
-                    for part in geom.parts():
-                        quantity += 1
+                    if (QgsWkbTypes.displayString(geom.wkbType()) == "Line"):
+                        for part in geom.parts():
+                            quantity += 1
     return quantity
                         
 
 
 # execution du controle
 def rebroussement(self):
-    nom_controle = "rebroussement"
-    items_done = 0
     for i in range (self.dlg3.listView.model().rowCount()):
-        # vérifie si le contrôle "rebroussement" est coché
-        if self.dlg3.listView.model().item(i).text() == nom_controle and self.dlg3.listView.model().item(i).checkState() == 2:
+        # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
+        nom_controle = "rebroussement"
+        items_done = 0
+        quantity = get_quantity(self)
+        if self.dlg3.listView.model().item(i).text() == nom_controle and self.dlg3.listView.model().item(i).checkState() == 2 and quantity != 0:
             # informe l'utilisateur le lancement du contrôle
             self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
             # récupère les paramètres si possible
             parametres = read(self)
-            # créé une bar de progrès avec pour total le nombre d'objets à faire
-            bar = QProgressDialog("Contrôle {} en cours".format(str(nom_controle)), "Cancel", 0, 100)
+            # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
+            bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.dlg3.listView.model().item(i).row() + 1), int(self.dlg3.listView.model().rowCount())), "Cancel", 0, 100)
             bar.setWindowModality(QtCore.Qt.WindowModal)
             bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-            quantity = get_quantity(self)
             # récupère les couches chargées et cochées sur qgis
             canvas = qgis.utils.iface.mapCanvas() 
             allLayers = canvas.layers()
@@ -108,9 +109,9 @@ def rebroussement(self):
                             geom = f.geometry()
                             attributes = f.attributes()
                             print(attributes)
-                            print('Area :', geom.area())
-                            print('Perimeter :', geom.length())
-                            print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
+                            # print('Area :', geom.area())
+                            # print('Perimeter :', geom.length())
+                            # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
                             # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points 
                             for part in geom.parts():
                                 # mets a jour le progrès de la bar de progrès
@@ -127,9 +128,11 @@ def rebroussement(self):
                                 rebroussement_ctrl(parametres[0], parametres[1], coords)
                                 items_done += 1
                                 if (bar.wasCanceled()):
-                                    self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info)
+                                    self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=5)
                                     return 1
-            self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Info)
+            self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Info, duration=5)
+        else:
+            self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
             
 # ['COMMUNE_0000000009738132', 'Guerlesquin', 'GUERLESQUIN', '29067', 'Commune simple', 1273, '20', '3', '29', '53', '242900835']
 # BEFORE : <QgsPolygon: Polygon ((213580.29999999998835847 6849033.20000000018626451, 213591.60000000000582077 6848979.09999999962747097, 213612.79999999998835847 6848879, 213617.79999999998835847 6848878.29999999981373549, 213622.70000000001164153 6848876.40000000037252903, 213626.89999999999417923 6848873.20000000018626451, 213637.70000000001164153 6848862.40000000037252903, 213655.5 6848842.40000000037252903, 213669.29999999998835847 6848823.79999999981373549, 213677.79999999998835847 6848810.90000000037252903, 213686.79999999998835847 6848794.90000000037252903, 213691.10000000000582077 6848785.90000000037252903, 213695.89999999999417923 6848776, 213699.60000000000582077 6848769.40000000037252903, 213704.10000000000582077 6848763.79999999981373549, 213709.29999999998835847 6848758.5, 213751.89999999999417923 6848724.59999999962747097, 213759.20000000001164153 6848718.20000000018626451, 213779 6848703.90000000037252903, 213788.20000000001164153 6848696.90000000037252903, 213790.89999999999417923 6848693.599...>
