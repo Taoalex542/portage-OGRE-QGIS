@@ -8,3 +8,4 @@ def rebroussement_ctrl(angle, longeur_min, data):
             if previous[0] - points[0] == 0 and previous[1] - points[1] == 0:
                 print("controle")
         previous = points
+    return None

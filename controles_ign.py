@@ -287,6 +287,8 @@ class Controles_IGN:
     def get_active_layers(self):
         canvas = qgis.utils.iface.mapCanvas()
         allLayers = canvas.layers()
+        if allLayers == []:
+            return
         for i in range (self.dlg2.listView.model().rowCount()):
             for j in allLayers:
                 if j.name() == self.dlg2.listView.model().item(i).text():

@@ -62,8 +62,7 @@ def read(self):
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self, objets_controle):
     quantity = 0
-    canvas = qgis.utils.iface.mapCanvas() 
-    allLayers = canvas.layers()
+    allLayers = QgsProject.instance().mapLayers().values()
     for layers in allLayers:
         for items in self.couche_list:
             # si la couche est présente dans la liste et qu'elle est cochée et qu'elle est présente dans les objets voulu
@@ -77,27 +76,6 @@ def get_quantity(self, objets_controle):
 
 
 
-def set_checked_layers_active(self):
-    active_layers = []
-    in_list = []
-    temp = []
-    canvas = qgis.utils.iface.mapCanvas() 
-    allLayers = canvas.layers()
-    for layers in allLayers:
-        active_layers.append(layers.name())
-    for items in self.couche_list:
-        if items[2] == 2:
-            in_list.append(items[0])
-    for items in in_list:
-        if items not in active_layers:
-            temp.append(items)
-    for i in temp:
-        test = qgis.core.QgsProject.instance().mapLayersByName(i)
-        qgis.core.QgsProject.instance().layerTreeRoot().findLayer(test[0]).setItemVisibilityChecked(True)
-    return temp
-
-
-
 # execution du controle
 def rebroussement(self):
     nom_controle = "rebroussement"
@@ -108,10 +86,10 @@ def rebroussement(self):
     for i in range (self.dlg3.listView.model().rowCount()):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
         if self.dlg3.listView.model().item(i).text() == nom_controle and self.dlg3.listView.model().item(i).checkState() == 2:
-            temp = set_checked_layers_active(self)
             items_done = 0
             quantity = get_quantity(self, objets_controle)
-            if quantity <= 0:
+            print("nombre d'objets", quantity)
+            if quantity > 0:
                 # informe l'utilisateur le lancement du contrôle
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
@@ -121,11 +99,7 @@ def rebroussement(self):
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
-                canvas = qgis.utils.iface.mapCanvas() 
-                allLayers = canvas.layers()
-                for i in temp:
-                    test = qgis.core.QgsProject.instance().mapLayersByName(i)
-                    qgis.core.QgsProject.instance().layerTreeRoot().findLayer(test[0]).setItemVisibilityChecked(False)
+                allLayers = QgsProject.instance().mapLayers().values()
                 # parcours des couches
                 for layers in allLayers:
                     # parcours la liste actuelle des couches
@@ -133,10 +107,11 @@ def rebroussement(self):
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked and layers.name() in objets_controle: #(QtCore.Qt.Checked == 2)
                             # récupère les informations des couches
+                            print(layers.name())
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
-                                attributes = f.attributes()
+                                # attributes = f.attributes()
                                 # print('Area :', geom.area())
                                 # print('Perimeter :', geom.length())
                                 # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
@@ -144,7 +119,7 @@ def rebroussement(self):
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès
                                     bar.setValue(int(items_done / quantity * 100))
-                                    #mets comme type de données l'ESPG 2154
+                                    # mets comme type de données l'ESPG 2154
                                     # part.transform(QgsCoordinateTransform(
                                     #     QgsCoordinateReferenceSystem("IGNF:LAMB93"),
                                     #     QgsCoordinateReferenceSystem("EPSG:2154"),
@@ -153,7 +128,9 @@ def rebroussement(self):
                                     nums = re.findall(r'[0-9]+(?:\.[0-9]*)?', part.asWkt().rpartition(',')[0]) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * 2)) #récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    rebroussement_ctrl(parametres[0], parametres[1], coords)
+                                    temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
+                                    if temp != None:
+                                        print("controle")
                                     items_done += 1
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=5)
