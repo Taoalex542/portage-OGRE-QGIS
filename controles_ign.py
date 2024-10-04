@@ -267,18 +267,46 @@ class Controles_IGN:
                 if self.dlg2.listView.model().item(i).text() == items[0] and self.dlg2.listView.model().item(i).checkState() != items[2]:
                     items[2] = self.dlg2.listView.model().item(i).checkState()
 
-    def add_layers(self):
-        """ Adds Checkboxes inside the listview dynamically based on the number of layers loaded in QGIS. """
 
+# nettoye le nom de l'objet dans la liste de couche pour enlever les partie inutiles (ex: DEPARTEMENT_b32ea3fd_66f3_447b_91c6_347298b2dfdb => DEPARTEMENT)
+    def nom_propre(self, name):
+        nombre = 0
+        autre_nombre = 0
+        new_name = ""
+        for letters in name:
+            if letters == '_':
+                nombre += 1
+        for i in range(len(name)):
+            if name[i] == '_':
+                autre_nombre += 1
+            if (autre_nombre >= nombre - 4):
+                break
+            new_name += name[i]
+        print(name, nombre, autre_nombre, new_name)
+        return new_name
+
+    def get_active_layers(self):
         canvas = qgis.utils.iface.mapCanvas()
         allLayers = canvas.layers()
+        for i in range (self.dlg2.listView.model().rowCount()):
+            for j in allLayers:
+                if j.name() == self.dlg2.listView.model().item(i).text():
+                    self.dlg2.listView.model().item(i).setCheckState(2)
+                    break
+                else:
+                    self.dlg2.listView.model().item(i).setCheckState(0)
+
+    def add_layers(self):
+        """ Adds Checkboxes inside the listview dynamically based on the number of layers in the QGIS layer tab. """
+
+        allLayers = qgis.core.QgsProject.instance().mapLayers()
         temp = []
         if self.couche_list != []:
             temp = self.couche_list.copy()
-        if canvas.layerCount != 0:
+        if allLayers:
             model = QStandardItemModel()
             for i in allLayers:
-                item = QStandardItem('%s' % i.name())
+                item = QStandardItem('%s' % self.nom_propre(i))
                 item.setCheckable(True)
                 item.setCheckState(QtCore.Qt.Checked)
                 model.appendRow(item)
@@ -287,6 +315,7 @@ class Controles_IGN:
             self.dlg2.listView.show()
         
         model = self.dlg2.listView.model()
+        self.get_active_layers()
         self.couche_list = []
         for i in range (self.dlg2.listView.model().rowCount()):
             self.couche_list.append([self.dlg2.listView.model().item(i).text(), i, self.dlg2.listView.model().item(i).checkState()])

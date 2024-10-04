@@ -71,6 +71,7 @@ def get_quantity(self):
                 # récupère les informations des couches
                 for f in layers.getFeatures():
                     geom = f.geometry()
+                    # print(QgsWkbTypes.displayString(geom.wkbType()))
                     if (QgsWkbTypes.displayString(geom.wkbType()) == "Line"):
                         for part in geom.parts():
                             quantity += 1
@@ -112,7 +113,7 @@ def rebroussement(self):
                             # print('Area :', geom.area())
                             # print('Perimeter :', geom.length())
                             # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
-                            # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points 
+                            # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                             for part in geom.parts():
                                 # mets a jour le progrès de la bar de progrès
                                 bar.setValue(int(items_done / quantity * 100))
