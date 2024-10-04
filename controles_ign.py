@@ -282,7 +282,6 @@ class Controles_IGN:
             if (autre_nombre >= nombre - 4):
                 break
             new_name += name[i]
-        print(name, nombre, autre_nombre, new_name)
         return new_name
 
     def get_active_layers(self):
@@ -360,6 +359,5 @@ class Controles_IGN:
         # See if OK was pressed
         result = self.dlg.exec_()
         if result:
-            if (rebroussement(self) == 1):
-                print("contrôles annulés")
+            rebroussement(self)
 
