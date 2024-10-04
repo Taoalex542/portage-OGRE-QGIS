@@ -108,9 +108,10 @@ def rebroussement(self):
     for i in range (self.dlg3.listView.model().rowCount()):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
         if self.dlg3.listView.model().item(i).text() == nom_controle and self.dlg3.listView.model().item(i).checkState() == 2:
+            temp = set_checked_layers_active(self)
             items_done = 0
             quantity = get_quantity(self, objets_controle)
-            if quantity != 0:
+            if quantity <= 0:
                 # informe l'utilisateur le lancement du contrôle
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
@@ -120,10 +121,8 @@ def rebroussement(self):
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
-                temp = set_checked_layers_active(self)
                 canvas = qgis.utils.iface.mapCanvas() 
                 allLayers = canvas.layers()
-                print(temp)
                 for i in temp:
                     test = qgis.core.QgsProject.instance().mapLayersByName(i)
                     qgis.core.QgsProject.instance().layerTreeRoot().findLayer(test[0]).setItemVisibilityChecked(False)

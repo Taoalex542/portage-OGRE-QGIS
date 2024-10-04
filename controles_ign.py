@@ -307,7 +307,6 @@ class Controles_IGN:
             for i in allLayers:
                 item = QStandardItem('%s' % self.nom_propre(i))
                 item.setCheckable(True)
-                item.setCheckState(QtCore.Qt.Checked)
                 model.appendRow(item)
 
             self.dlg2.listView.setModel(model)
