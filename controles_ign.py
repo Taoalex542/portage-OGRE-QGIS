@@ -22,11 +22,12 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
-from qgis.PyQt.QtWidgets import QAction, QProgressDialog
+from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem
 from qgis.utils import iface
 from qgis.core import *
 from qgis import *
 from numpy import copy
+from sip import delete
 import base64
 import time
 
@@ -247,10 +248,6 @@ class Controles_IGN:
 
 
     def choix_couches(self):
-        for i in range (self.dlg2.listView.model().rowCount()):
-            for items in self.couche_list:
-                if self.dlg2.listView.model().item(i).text() == items[0] and self.dlg2.listView.model().item(i).checkState() != items[2]:
-                    self.dlg2.listView.model().item(i).setCheckState(items[2])
         self.dlg2.show()
 
     def check_layer_boxes(self):
@@ -262,10 +259,7 @@ class Controles_IGN:
             self.dlg2.listView.model().item(i).setCheckState(0)
 
     def update_layer_checkboxes(self):
-        for i in range (self.dlg2.listView.model().rowCount()):
-            for items in self.couche_list:
-                if self.dlg2.listView.model().item(i).text() == items[0] and self.dlg2.listView.model().item(i).checkState() != items[2]:
-                    items[2] = self.dlg2.listView.model().item(i).checkState()
+        return
 
 
 # nettoye le nom de l'objet dans la liste de couche pour enlever les partie inutiles (ex: DEPARTEMENT_b32ea3fd_66f3_447b_91c6_347298b2dfdb => DEPARTEMENT)
@@ -297,37 +291,98 @@ class Controles_IGN:
                 else:
                     self.dlg2.listView.model().item(i).setCheckState(0)
 
+    def set_group_items(self, item, nb):
+        if (item.children() == []):
+            return 1
+        if (nb == None):
+            parent = QTreeWidgetItem(self.dlg2.treeWidget)
+        else:
+            parent = QTreeWidgetItem(nb)
+        parent.setText(0, '%s' % item.name())
+        parent.setFlags(parent.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+        node = item
+        for childs in node.children():
+            if(type(childs) == qgis._core.QgsLayerTreeGroup):
+                if (self.set_group_items(childs, parent) == 0):
+                    continue
+            child = QTreeWidgetItem(parent)
+            child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+            child.setText(0, '%s' % childs.name())
+            child.setCheckState(0, QtCore.Qt.Unchecked)
+        return 0
+
+    def activate_in_groups(self, nb, signal):
+        for i in range(nb):
+            child = signal.child(i)
+            num_children = child.childCount()
+            self.activate_in_groups(num_children, child)
+            if child.checkState(0) == QtCore.Qt.Checked:
+                print("my", child.text(0))
+
+    def hello(self):
+        allLayers = qgis.core.QgsProject.instance().layerTreeRoot().children()
+        root = self.dlg2.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            num_children = signal.childCount()
+            self.activate_in_groups(num_children, signal)
+
+            # # print(items.name())
+            # if (items.isVisible()):
+            #     for i in range(root.childCount()):
+            #         signal = root.child(i)
+            #         if(type(items) == qgis._core.QgsLayerTreeLayer):
+            #             print(type(items), items.name())
+            #             if signal.text(0) == items.name():
+            #                 print(signal.text(0), "active")
+            #                 signal.setCheckState(0, 2)
+            #                 print(signal.checkState(0))
+            #         if(type(items) == qgis._core.QgsLayerTreeGroup):
+            #             print("test",signal.text(0))
+            #             print(type(items), items.name())
+                            
+                
+
     def add_layers(self):
         """ Adds Checkboxes inside the listview dynamically based on the number of layers in the QGIS layer tab. """
 
-        allLayers = qgis.core.QgsProject.instance().mapLayers()
+        self.dlg2.treeWidget.setHeaderHidden(True)
         temp = []
+        allLayers = qgis.core.QgsProject.instance().layerTreeRoot().children()
         if self.couche_list != []:
             temp = self.couche_list.copy()
+        for i in self.dlg2.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         if allLayers:
-            model = QStandardItemModel()
             for i in allLayers:
-                item = QStandardItem('%s' % self.nom_propre(i))
-                item.setCheckable(True)
-                model.appendRow(item)
-
-            self.dlg2.listView.setModel(model)
-            self.dlg2.listView.show()
+                # if (i.isVisible()):
+                #     print(i.name())
+                if(type(i) == qgis._core.QgsLayerTreeLayer):
+                    azerty = QTreeWidgetItem(self.dlg2.treeWidget)
+                    azerty.setText(0, '%s' % i.name())
+                    azerty.setCheckState(0, 0)
+                if(type(i) == qgis._core.QgsLayerTreeGroup):
+                    self.set_group_items(i, None)
         
-        model = self.dlg2.listView.model()
-        self.get_active_layers()
+        # self.get_active_layers()
         self.couche_list = []
-        for i in range (self.dlg2.listView.model().rowCount()):
-            self.couche_list.append([self.dlg2.listView.model().item(i).text(), i, self.dlg2.listView.model().item(i).checkState()])
-        if temp != []:
-            for old_item in temp:
-                for new_item in self.couche_list:
-                    if old_item[0] == new_item[0]:
-                        new_item[2] = old_item[2]
-        for i in range (self.dlg2.listView.model().rowCount()):
-            for items in self.couche_list:
-                if self.dlg2.listView.model().item(i).text() == items[0] and self.dlg2.listView.model().item(i).checkState() != items[2]:
-                    self.dlg2.listView.model().item(i).setCheckState(items[2])
+        i = 0
+        self.hello()
+        root = self.dlg2.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            self.couche_list.append([signal.text(0), i, signal.checkState(0)])
+            i += 1
+        # for i in range (self.dlg2.listView.model().rowCount()):
+        #     self.couche_list.append([self.dlg2.listView.model().item(i).text(), i, self.dlg2.listView.model().item(i).checkState()])
+        # if temp != []:
+        #     for old_item in temp:
+        #         for new_item in self.couche_list:
+        #             if old_item[0] == new_item[0]:
+        #                 new_item[2] = old_item[2]
+        # for i in range (self.dlg2.listView.model().rowCount()):
+        #     for items in self.couche_list:
+        #         if self.dlg2.listView.model().item(i).text() == items[0] and self.dlg2.listView.model().item(i).checkState() != items[2]:
+        #             self.dlg2.listView.model().item(i).setCheckState(items[2])
 
 
     def run(self):
@@ -351,7 +406,7 @@ class Controles_IGN:
         self.dlg3.buttonBox.clicked.connect(self.update_control_checkboxes)
         self.dlg3.uncheck_all.clicked.connect(self.uncheck_all_ctrl)
         self.dlg3.check_all.clicked.connect(self.check_all_ctrl)
-        self.dlg2.buttonBox.clicked.connect(self.update_layer_checkboxes)
+        self.dlg2.buttonBox.clicked.connect(self.hello)
         self.dlg2.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
         self.dlg2.check_all.clicked.connect(self.check_layer_boxes)
         # for i in range(len(self.control_list)):
@@ -362,3 +417,4 @@ class Controles_IGN:
         if result:
             rebroussement(self)
 
+# [<QgsLayerTreeGroup: group1>, <QgsLayerTreeLayer: construction_ponctuelle>, <QgsLayerTreeLayer: batiment>, <QgsLayerTreeLayer: pylone>, <QgsLayerTreeLayer: canalisation>, <QgsLayerTreeLayer: limite_administrative>, <QgsLayerTreeLayer: cimetiere>, <QgsLayerTreeLayer: voie_de_triage>, <QgsLayerTreeLayer: parcellaire_forestier>, <QgsLayerTreeLayer: adresse_ban>, <QgsLayerTreeLayer: point_d_acces>, <QgsLayerTreeLayer: zone_d_activite_ou_d_interet>, <QgsLayerTreeLayer: zone_d_habitation>, <QgsLayerTreeLayer: limites_diverses>, <QgsLayerTreeLayer: detail_hydrographique>, <QgsLayerTreeLayer: itineraire_ski_de_randonnee>, <QgsLayerTreeLayer: troncon_hydrographique>, <QgsLayerTreeLayer: densification_des_chemins>, <QgsLayerTreeLayer: ligne_caracteristique>, <QgsLayerTreeLayer: ligne_orographique>, <QgsLayerTreeLayer: construction_lineaire>, <QgsLayerTreeLayer: troncon_de_route>, <QgsLayerTreeLayer: limite_terre_mer>, <QgsLayerTreeLayer: equipement_de_transport>, <QgsLayerTreeLayer: surface_hydrographique>, <QgsLayerTreeLayer: nature_du_sol>, <QgsLayerTreeLayer: ligne_electrique>, <QgsLayerTreeLayer: construction_surfacique>, <QgsLayerTreeLayer: zone_d_estran>, <QgsLayerTreeLayer: point_du_reseau>, <QgsLayerTreeLayer: detail_orographique>, <QgsLayerTreeLayer: edifice_ou_curiosite>, <QgsLayerTreeLayer: point_de_repere>, <QgsLayerTreeLayer: reservoir>, <QgsLayerTreeLayer: aerodrome>, <QgsLayerTreeLayer: troncon_de_voie_ferree>, <QgsLayerTreeLayer: piste_d_aerodrome>, <QgsLayerTreeLayer: terrain_de_sport>, <QgsLayerTreeLayer: poste_de_transformation>, <QgsLayerTreeLayer: lieu_dit_non_habite>, <QgsLayerTreeLayer: transport_par_cable>, <QgsLayerTreeLayer: evolution_ponctuelle>, <QgsLayerTreeLayer: COMMUNE>, <QgsLayerTreeLayer: DEPARTEMENT>]

@@ -37,6 +37,7 @@ def read(self):
                 angle = 10
                 self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
 
+            # lis la deuxième ligne (si elle existe) de la même manière que la première
             if line_number >= 2:
                 for characters in parametres[1]:
                     if ((characters < '0' or characters > '9') and characters != '\n' and characters !='.'):
