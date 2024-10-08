@@ -146,7 +146,7 @@ def rebroussement(self):
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=5)
                                         return 1
-                self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Info, duration=5)
+                self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Success, duration=5)
                 self.controles_restants += 1
                 return 0
             else:

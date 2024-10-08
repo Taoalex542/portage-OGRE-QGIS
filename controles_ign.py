@@ -89,6 +89,7 @@ class Controles_IGN:
         self.add_controls()
         self.controles_actifs = 0
         self.controles_restants = 0
+        self.couches_actives = 0
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -208,6 +209,7 @@ class Controles_IGN:
 
 #  PARTIE CONTRÔLES
 
+    # prépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok et affiches la boite de dialogue choix_controles
     def choix_controles(self):
         for items in self.control_list:
             root = self.dlg_controles.treeWidget.invisibleRootItem()
@@ -229,7 +231,7 @@ class Controles_IGN:
                 if num_children != 0:
                     self.global_contrôle_prep(num_children, child)
 
-
+    # mets a jour les checkbox pour les couches
     def update_control_boxes(self):
         root = self.dlg_controles.treeWidget.invisibleRootItem()
         for items in self.control_list:
@@ -250,6 +252,7 @@ class Controles_IGN:
                 if num_children != 0:
                     self.update_control_boxes2(num_children, child)
 
+    # coche ou décoche toutes les couches présentes dans le treeView
     def global_control_edit(self, check):
         root = self.dlg_controles.treeWidget.invisibleRootItem()
         for i in range(root.childCount()):
@@ -270,6 +273,7 @@ class Controles_IGN:
     def uncheck_control_boxes(self):
         self.global_control_edit(QtCore.Qt.Unchecked)
 
+    # ajoute les groupes dans la liste control_list
     def append_ctrl_to_list(self):
         total = 0
         root = self.dlg_controles.treeWidget.invisibleRootItem()
@@ -291,6 +295,7 @@ class Controles_IGN:
                 self.control_list.append([child.text(0), total, child.checkState(0)])
                 total += 1
 
+    # ajoute les contrôles voulus dans le treeView de self.dlg_controles
     def add_controls(self):
         self.dlg_controles.treeWidget.setHeaderHidden(True)
         echelle = QTreeWidgetItem(self.dlg_controles.treeWidget)
@@ -307,16 +312,39 @@ class Controles_IGN:
         item.setText(0, '%s' % "test")
         item.setCheckState(0, 2)
         self.append_ctrl_to_list()
-  
+    
+    #renvoie le nombre de controles actifs dans la liste
+    def nb_controles_actifs(self):
+        self.controles_actifs = 0
+        for items in self.control_list:
+            if items[2] == QtCore.Qt.Checked:
+                self.controles_actifs += 1
+        self.controles_restants = 1
+
+    # fonctin de lancement de contrôles, récupère le nombre de contrôles cochés ainsi que le nombre de couches cochées et agis accordément
     def run_controls(self):
         self.nb_controles_actifs()
+        if (self.controles_actifs <= 0):
+            self.iface.messageBar().pushMessage("Erreur", "Aucun contrôle séléctionné", level=Qgis.Warning, duration=10)
+            return
+        self.get_active_layers()
+        if (self.couches_actives <= 0):
+            self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnes", level=Qgis.Warning, duration=10)
+            return
         rebroussement(self)
-  
+        self.iface.messageBar().pushMessage("Info", "Contrôles terminés", level=Qgis.Success, duration=5)
   
   
   # PARTIE COUCHES :
-  
-    # prépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok et affiches la boite de dialogue choix_couches, 
+
+    # récumpère le nombre de couches choisies pour les contrôles
+    def get_active_layers(self):
+        self.couches_actives = 0
+        for items in self.couche_list:
+            if items[2] == QtCore.Qt.Checked:
+                self.couches_actives += 1
+
+    # prépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok et affiches la boite de dialogue choix_couches
     def choix_couches(self):
         for items in self.couche_list:
             root = self.dlg_couches.treeWidget.invisibleRootItem()
@@ -354,10 +382,8 @@ class Controles_IGN:
             child.setCheckState(0, check)
             if num_children != 0:
                 self.global_checkbox_edit2(num_children, child, check)
-
     def check_layer_boxes(self):
         self.global_checkbox_edit(QtCore.Qt.Checked)
-
     def uncheck_layer_boxes(self):
         self.global_checkbox_edit(QtCore.Qt.Unchecked)
 
@@ -501,7 +527,7 @@ class Controles_IGN:
                 signal = root.child(i)
                 num_children = signal.childCount()
                 if (signal.text(0) == items[0] and signal.checkState(0) != items[2]):
-                    signal.setCheckState(items[2])
+                    signal.setCheckState(0, items[2])
                 if (num_children != 0):
                     self.check_groups(num_children, signal)
 
@@ -515,13 +541,6 @@ class Controles_IGN:
         self.check_layer_boxes()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
-    #renvoie le nombre de controles actifs dans la liste
-    def nb_controles_actifs(self):
-        self.controles_actifs = 0
-        for items in self.control_list:
-            if items[2] == QtCore.Qt.Checked:
-                self.controles_actifs += 1
-        self.controles_restants = 1
 
 
 
