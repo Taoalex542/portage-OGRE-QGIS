@@ -21,12 +21,10 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
-from qgis.PyQt.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
+from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem
-from qgis.utils import iface
 from qgis.core import *
-from qgis import *
-from numpy import copy
+import qgis
 from sip import delete
 import base64
 import time
@@ -560,7 +558,6 @@ class Controles_IGN:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        # self.addLayers()
         self.dlg.resetButton.clicked.connect(self.reset)
         self.dlg.coucheButton.clicked.connect(self.choix_couches)
         self.dlg.controleButton.clicked.connect(self.choix_controles)
@@ -570,9 +567,7 @@ class Controles_IGN:
         self.dlg_couches.buttonBox.clicked.connect(self.update_layer_boxes)
         self.dlg_couches.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
         self.dlg_couches.check_all.clicked.connect(self.check_layer_boxes)
-        # for i in range(len(self.control_list)):
-        #     print(self.control_list[i][2])
-        #     self.control_list[i][0].clicked.connect(self.update_check_status)
+
         # See if OK was pressed
         result = self.dlg.exec_()
         if result:

@@ -1,7 +1,6 @@
 # coding=utf-8
 import os
 from qgis.core import *
-from qgis.utils import iface
 from qgis import *
 from qgis.PyQt.QtWidgets import QProgressDialog
 from .ctrl import rebroussement_ctrl
@@ -32,7 +31,7 @@ def read(self):
                     break
             if (angle == 0):
                 angle = int(parametres[0])
-            #gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50° ou plus petit que 1°)
+            # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50° ou plus petit que 1°)
             if (angle > 50 or angle < 1):
                 angle = 10
                 self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
@@ -137,7 +136,7 @@ def rebroussement(self):
                                     #     QgsProject.instance()))
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'[0-9]+(?:\.[0-9]*)?', part.asWkt().rpartition(',')[0]) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
-                                    coords = tuple(zip(*[map(float, nums)] * 2)) #récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
+                                    coords = tuple(zip(*[map(float, nums)] * 2)) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
                                     temp = rebroussement_ctrl(parametres[0], parametres[1], part)
                                     if temp != None:
