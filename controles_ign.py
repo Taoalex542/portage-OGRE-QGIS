@@ -82,11 +82,13 @@ class Controles_IGN:
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
-        self.controle_actif = False
+        self.controles_actifs = False
         self.value = 0
         self.control_list = []
         self.couche_list = []
         self.add_controls()
+        self.controles_actifs = 0
+        self.controles_restants = 0
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -273,19 +275,21 @@ class Controles_IGN:
         root = self.dlg_controles.treeWidget.invisibleRootItem()
         for i in range(root.childCount()):
             signal = root.child(i)
-            self.control_list.append([signal.text(0), total, signal.checkState(0)])
             num_children = signal.childCount()
             if (num_children != 0):
                 self.append_ctrl_2(num_children, signal, total)
-            total += 1
+            else:
+                self.control_list.append([signal.text(0), total, signal.checkState(0)])
+                total += 1
     def append_ctrl_2(self, num_children, parent, total):
         for i in range(parent.childCount()):
             child = parent.child(i)
             num_children = child.childCount()
-            self.control_list.append([child.text(0), total, child.checkState(0)])
             if num_children != 0:
                 self.append_ctrl_2(num_children, child, total)
-            total += 1
+            else:
+                self.control_list.append([child.text(0), total, child.checkState(0)])
+                total += 1
 
     def add_controls(self):
         self.dlg_controles.treeWidget.setHeaderHidden(True)
@@ -303,6 +307,10 @@ class Controles_IGN:
         item.setText(0, '%s' % "test")
         item.setCheckState(0, 2)
         self.append_ctrl_to_list()
+  
+    def run_controls(self):
+        self.nb_controles_actifs()
+        rebroussement(self)
   
   
   
@@ -507,6 +515,14 @@ class Controles_IGN:
         self.check_layer_boxes()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
+    #renvoie le nombre de controles actifs dans la liste
+    def nb_controles_actifs(self):
+        self.controles_actifs = 0
+        for items in self.control_list:
+            if items[2] == QtCore.Qt.Checked:
+                self.controles_actifs += 1
+        self.controles_restants = 1
+
 
 
 # PARTIE DE LANCEMENT DU CODE
@@ -541,4 +557,4 @@ class Controles_IGN:
         # See if OK was pressed
         result = self.dlg.exec_()
         if result:
-            rebroussement(self)
+            self.run_controls()

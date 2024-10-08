@@ -94,9 +94,9 @@ def rebroussement(self):
                , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
                , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
                , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
-    for i in range (self.dlg_controles.listView.model().rowCount()):
+    for item in self.dlg_controles.treeWidget.findItems("rebroussement", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
-        if self.dlg_controles.listView.model().item(i).text() == nom_controle and self.dlg_controles.listView.model().item(i).checkState() == 2:
+        if item.checkState(0) == 2:
             items_done = 0
             quantity = get_quantity(self, objets_controle)
             print("nombre d'objets", quantity)
@@ -106,7 +106,7 @@ def rebroussement(self):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.dlg_controles.listView.model().item(i).row() + 1), int(self.dlg_controles.listView.model().rowCount())), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants), int(self.controles_actifs)), "Cancel", 0, 100)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
@@ -139,7 +139,7 @@ def rebroussement(self):
                                     nums = re.findall(r'[0-9]+(?:\.[0-9]*)?', part.asWkt().rpartition(',')[0]) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * 2)) #récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
+                                    temp = rebroussement_ctrl(parametres[0], parametres[1], part)
                                     if temp != None:
                                         print("controle")
                                     items_done += 1
@@ -147,9 +147,11 @@ def rebroussement(self):
                                         self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=5)
                                         return 1
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Info, duration=5)
+                self.controles_restants += 1
                 return 0
             else:
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
+                self.controles_restants += 1
                 return 2
             
 # ['COMMUNE_0000000009738132', 'Guerlesquin', 'GUERLESQUIN', '29067', 'Commune simple', 1273, '20', '3', '29', '53', '242900835']
