@@ -94,9 +94,9 @@ def rebroussement(self):
                , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
                , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
                , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
-    for i in range (self.dlg3.listView.model().rowCount()):
+    for i in range (self.dlg_controles.listView.model().rowCount()):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
-        if self.dlg3.listView.model().item(i).text() == nom_controle and self.dlg3.listView.model().item(i).checkState() == 2:
+        if self.dlg_controles.listView.model().item(i).text() == nom_controle and self.dlg_controles.listView.model().item(i).checkState() == 2:
             items_done = 0
             quantity = get_quantity(self, objets_controle)
             print("nombre d'objets", quantity)
@@ -106,7 +106,7 @@ def rebroussement(self):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.dlg3.listView.model().item(i).row() + 1), int(self.dlg3.listView.model().rowCount())), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.dlg_controles.listView.model().item(i).row() + 1), int(self.dlg_controles.listView.model().rowCount())), "Cancel", 0, 100)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
