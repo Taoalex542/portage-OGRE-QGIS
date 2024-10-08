@@ -203,59 +203,113 @@ class Controles_IGN:
             self.iface.removeToolBarIcon(action)
 
 
-    def reset(self):
-        self.check_all_ctrl()
-        self.check_layer_boxes()
-        self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
+#  PARTIE CONTRÔLES
 
     def choix_controles(self):
-        for i in range (self.dlg_controles.listView.model().rowCount()):
-            for items in self.control_list:
-                if self.dlg_controles.listView.model().item(i).text() == items[0] and self.dlg_controles.listView.model().item(i).checkState() != items[2]:
-                    self.dlg_controles.listView.model().item(i).setCheckState(items[2])
+        for items in self.control_list:
+            root = self.dlg_controles.treeWidget.invisibleRootItem()
+            for i in range(root.childCount()):
+                signal = root.child(i)
+                num_children = signal.childCount()
+                if (signal.text(0) == items[0]):
+                    signal.setCheckState(0, items[2])
+                if (num_children != 0):
+                    self.global_contrôle_prep(num_children, signal)
         self.dlg_controles.show()
+    def global_contrôle_prep(self, num_children, parent):
+        for items in self.control_list:
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                num_children = child.childCount()
+                if (child.text(0) == items[0]):
+                    child.setCheckState(0, items[2])
+                if num_children != 0:
+                    self.global_contrôle_prep(num_children, child)
+
+
+    def update_control_boxes(self):
+        root = self.dlg_controles.treeWidget.invisibleRootItem()
+        for items in self.control_list:
+            for i in range(root.childCount()):
+                signal = root.child(i)
+                num_children = signal.childCount()
+                if (signal.text(0) == items[0] and signal.checkState(0) != items[2]):
+                    items[2] = signal.checkState(0)
+                if (num_children != 0):
+                    self.update_control_boxes2(num_children, signal)
+    def update_control_boxes2(self, num_children, parent):
+        for items in self.control_list:
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                num_children = child.childCount()
+                if (child.text(0) == items[0] and child.checkState(0) != items[2]):
+                    items[2] = child.checkState(0)
+                if num_children != 0:
+                    self.update_control_boxes2(num_children, child)
+
+    def global_control_edit(self, check):
+        root = self.dlg_controles.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            num_children = signal.childCount()
+            signal.setCheckState(0, check)
+            if (num_children != 0):
+                self.global_control_edit2(num_children, signal, check)
+    def global_control_edit2(self, num_children, parent, check):
+        for i in range(parent.childCount()):
+            child = parent.child(i)
+            num_children = child.childCount()
+            child.setCheckState(0, check)
+            if num_children != 0:
+                self.global_control_edit2(num_children, child, check)
+    def check_control_boxes(self):
+        self.global_control_edit(QtCore.Qt.Checked)
+    def uncheck_control_boxes(self):
+        self.global_control_edit(QtCore.Qt.Unchecked)
+
+    def append_ctrl_to_list(self):
+        total = 0
+        root = self.dlg_controles.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            self.control_list.append([signal.text(0), total, signal.checkState(0)])
+            num_children = signal.childCount()
+            if (num_children != 0):
+                self.append_ctrl_2(num_children, signal, total)
+            total += 1
+    def append_ctrl_2(self, num_children, parent, total):
+        for i in range(parent.childCount()):
+            child = parent.child(i)
+            num_children = child.childCount()
+            self.control_list.append([child.text(0), total, child.checkState(0)])
+            if num_children != 0:
+                self.append_ctrl_2(num_children, child, total)
+            total += 1
 
     def add_controls(self):
-        model = QStandardItemModel()
-        item = QStandardItem('%s' % "rebroussement")
-        item.setCheckable(True)
-        item.setCheckState(QtCore.Qt.Checked)
-        model.appendRow(item)
-        item = QStandardItem('%s' % "contôle")
-        item.setCheckable(True)
-        item.setCheckState(QtCore.Qt.Checked)
-        model.appendRow(item)
-        self.dlg_controles.listView.setModel(model)
-        self.dlg_controles.listView.show()
-        for i in range (self.dlg_controles.listView.model().rowCount()):
-            self.control_list.append([self.dlg_controles.listView.model().item(i).text(), i, self.dlg_controles.listView.model().item(i).checkState()])
-
-    def update_control_checkboxes(self):
-        for i in range (self.dlg_controles.listView.model().rowCount()):
-            for items in self.control_list:
-                if self.dlg_controles.listView.model().item(i).text() == items[0] and self.dlg_controles.listView.model().item(i).checkState() != items[2]:
-                    items[2] = self.dlg_controles.listView.model().item(i).checkState()
-
-    def uncheck_all_ctrl(self):
-        for i in range (self.dlg_controles.listView.model().rowCount()):
-            self.dlg_controles.listView.model().item(i).setCheckState(0)
-
-    def check_all_ctrl(self):
-        for i in range (self.dlg_controles.listView.model().rowCount()):
-            self.dlg_controles.listView.model().item(i).setCheckState(2)
+        self.dlg_controles.treeWidget.setHeaderHidden(True)
+        echelle = QTreeWidgetItem(self.dlg_controles.treeWidget)
+        echelle.setText(0, '%s' % "Grande Échelle")
+        echelle.setFlags(echelle.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+        type = QTreeWidgetItem(echelle)
+        type.setText(0, '%s' % "Contrôles Géométrie")
+        type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+        item = QTreeWidgetItem(type)
+        item.setText(0, '%s' % "rebroussement")
+        item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+        item.setCheckState(0, 2)
+        item = QTreeWidgetItem(self.dlg_controles.treeWidget)
+        item.setText(0, '%s' % "test")
+        item.setCheckState(0, 2)
+        self.append_ctrl_to_list()
   
   
   
+  # PARTIE COUCHES :
   
-  
-    # prépare et affiches la boite de dialogue choix_couches
+    # prépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok et affiches la boite de dialogue choix_couches, 
     def choix_couches(self):
-        self.global_couche_prep()
-        self.dlg_couches.show()
-
-    # preépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok
-    def global_couche_prep(self):
         for items in self.couche_list:
             root = self.dlg_couches.treeWidget.invisibleRootItem()
             for i in range(root.childCount()):
@@ -264,8 +318,9 @@ class Controles_IGN:
                 if (signal.text(0) == items[0]):
                     signal.setCheckState(0, items[2])
                 if (num_children != 0):
-                    self.global_couche_prep2(num_children, signal)
-    def global_couche_prep2(self, num_children, parent):
+                    self.global_couche_prep(num_children, signal)
+        self.dlg_couches.show()
+    def global_couche_prep(self, num_children, parent):
         for items in self.couche_list:
             for i in range(parent.childCount()):
                 child = parent.child(i)
@@ -273,7 +328,7 @@ class Controles_IGN:
                 if (child.text(0) == items[0]):
                     child.setCheckState(0, items[2])
                 if num_children != 0:
-                    self.global_couche_prep2(num_children, child)
+                    self.global_couche_prep(num_children, child)
 
     # coche ou décoche toutes les couches présentes dans le treeView
     def global_checkbox_edit(self, check):
@@ -351,27 +406,6 @@ class Controles_IGN:
             if layer.name() == child.text(0) and layer.isVisible():
                 child.setCheckState(0, 2)
             i += 1
-
-    # créé les groupes et ajoutes les enfants dans les groupes
-    def set_group_items(self, item, nb):
-        if (item.children() == []):
-            return 1
-        if (nb == None):
-            parent = QTreeWidgetItem(self.dlg_couches.treeWidget)
-        else:
-            parent = QTreeWidgetItem(nb)
-        parent.setText(0, '%s' % item.name())
-        parent.setFlags(parent.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-        node = item
-        for childs in node.children():
-            if(type(childs) == qgis._core.QgsLayerTreeGroup):
-                if (self.set_group_items(childs, parent) == 0):
-                    continue
-            child = QTreeWidgetItem(parent)
-            child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
-            child.setText(0, '%s' % childs.name())
-            child.setCheckState(0, QtCore.Qt.Unchecked)
-        return 0
     
     # ajoute les groupes dans la liste couche_list
     def append_for_groups(self, num_children, parent, total):
@@ -393,6 +427,27 @@ class Controles_IGN:
                         child.setCheckState(items[2])
                 if num_children != 0:
                     self.check_groups(num_children, child)
+
+    # créé les groupes et ajoutes les enfants dans les groupes
+    def set_group_items(self, item, nb):
+        if (item.children() == []):
+            return 1
+        if (nb == None):
+            parent = QTreeWidgetItem(self.dlg_couches.treeWidget)
+        else:
+            parent = QTreeWidgetItem(nb)
+        parent.setText(0, '%s' % item.name())
+        parent.setFlags(parent.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+        node = item
+        for childs in node.children():
+            if(type(childs) == qgis._core.QgsLayerTreeGroup):
+                if (self.set_group_items(childs, parent) == 0):
+                    continue
+            child = QTreeWidgetItem(parent)
+            child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+            child.setText(0, '%s' % childs.name())
+            child.setCheckState(0, QtCore.Qt.Unchecked)
+        return 0
 
     # ajoute les layers présents dans la séléction de couche de QGIS dans un treeView
     def add_layers(self):
@@ -443,6 +498,19 @@ class Controles_IGN:
                     self.check_groups(num_children, signal)
 
 
+
+# PARTIE GLOBALE
+
+    # coche toutes les cases
+    def reset(self):
+        self.check_all_ctrl()
+        self.check_layer_boxes()
+        self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
+
+
+
+# PARTIE DE LANCEMENT DU CODE
+
     def run(self):
         """Run method that performs all the real work"""
 
@@ -461,9 +529,9 @@ class Controles_IGN:
         self.dlg.resetButton.clicked.connect(self.reset)
         self.dlg.coucheButton.clicked.connect(self.choix_couches)
         self.dlg.controleButton.clicked.connect(self.choix_controles)
-        self.dlg_controles.buttonBox.clicked.connect(self.update_control_checkboxes)
-        self.dlg_controles.uncheck_all.clicked.connect(self.uncheck_all_ctrl)
-        self.dlg_controles.check_all.clicked.connect(self.check_all_ctrl)
+        self.dlg_controles.buttonBox.clicked.connect(self.update_control_boxes)
+        self.dlg_controles.uncheck_all.clicked.connect(self.uncheck_control_boxes)
+        self.dlg_controles.check_all.clicked.connect(self.check_control_boxes)
         self.dlg_couches.buttonBox.clicked.connect(self.update_layer_boxes)
         self.dlg_couches.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
         self.dlg_couches.check_all.clicked.connect(self.check_layer_boxes)
