@@ -58,7 +58,14 @@ def read(self):
         self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
         return [10, 0.01]
 
-
+def get_info_in_groups(self, parent, objets_controle, quantity):
+    for items in self.couche_list:
+        for childs in parent.children():
+            if childs.name() == items[0] and items[2] == QtCore.Qt.Checked and childs.name() in objets_controle:
+                for f in childs.getFeatures():
+                    geom = f.geometry()
+                    for part in geom.parts():
+                        quantity += 1
 
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self, objets_controle):
@@ -66,6 +73,9 @@ def get_quantity(self, objets_controle):
     allLayers = QgsProject.instance().mapLayers().values()
     for layers in allLayers:
         for items in self.couche_list:
+            if(type(layers) == qgis._core.QgsLayerTreeGroup):
+                get_info_in_groups(self, layers, objets_controle, quantity)
+                continue
             # si la couche est présente dans la liste et qu'elle est cochée et qu'elle est présente dans les objets voulu
             if layers.name() == items[0] and items[2] == QtCore.Qt.Checked and layers.name() in objets_controle: #(QtCore.Qt.Checked == 2)
                 # récupère les informations des couches
