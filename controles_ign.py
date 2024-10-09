@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
-from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.PyQt.QtGui import QIcon, QPixmap, QColor
 from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem
 from qgis.core import *
 import qgis
@@ -557,6 +557,11 @@ class Controles_IGN:
                         QgsField("libllé",  QVariant.String),
                         QgsField("attrubuts objet", QVariant.List)])
         self.controlpoint_layer.updateFields()
+        
+        single_symbol_renderer = self.controlpoint_layer.renderer()
+        symbol = single_symbol_renderer.symbol()
+        symbol.setColor(QColor.fromRgb(0, 225, 0))
+
         self.control_layer_found = True
 
     def get_controlpoint_layer(self):
