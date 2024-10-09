@@ -128,7 +128,7 @@ def rebroussement(self):
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
-                                # attributes = f.attributes()
+                                attributes = f.attributes()
                                 # print('Area :', geom.area())
                                 # print('Perimeter :', geom.length())
                                 # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
@@ -144,19 +144,23 @@ def rebroussement(self):
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
-                                    print (nums)
-                                    print (coords)
-                                    print (part.asWkt().rpartition(',')[0])
                                     # lance le controle rebroussement
-                                    temp = rebroussement_ctrl(parametres[0], parametres[1], part.asWkt())
+                                    temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
                                     if temp != None:
-                                        print("controle")
+                                        if self.control_layer_found == False:
+                                            self.create_controlpoint_layer()
+                                        for controles in temp:
+                                            ctrl = QgsFeature()
+                                            ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
+                                            ctrl.setAttributes(["Géométrie.", "Rebroussement", attributes])
+                                            self.provider.addFeature(ctrl)
+                                            self.controlpoint_layer.updateExtents() 
+                                            QgsProject.instance().addMapLayer(self.controlpoint_layer)
+                                    temp = []
                                     items_done += 1
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=5)
                                         return 1
-                                    break
-                                break
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Success, duration=5)
                 self.controles_restants += 1
                 return 0

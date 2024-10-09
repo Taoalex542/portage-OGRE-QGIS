@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem
 from qgis.core import *
@@ -88,6 +88,9 @@ class Controles_IGN:
         self.controles_actifs = 0
         self.controles_restants = 0
         self.couches_actives = 0
+        self.controlpoint_layer = None
+        self.provider = None
+        self.control_layer_found = False
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -329,6 +332,10 @@ class Controles_IGN:
         if (self.couches_actives <= 0):
             self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnes", level=Qgis.Warning, duration=10)
             return
+        if self.controlpoint_layer:
+            qinst = QgsProject.instance()
+            qinst.removeMapLayer(self.controlpoint_layer)
+            self.control_layer_found = False
         rebroussement(self)
         self.iface.messageBar().pushMessage("Info", "Contrôles terminés", level=Qgis.Success, duration=5)
   
@@ -456,7 +463,7 @@ class Controles_IGN:
                 child = parent.child(i)
                 num_children = child.childCount()
                 if (child.text(0) == items[0] and child.checkState(0) != items[2]):
-                        child.setCheckState(items[2])
+                        child.setCheckState(0, items[2])
                 if num_children != 0:
                     self.check_groups(num_children, child)
 
@@ -495,6 +502,10 @@ class Controles_IGN:
         if allLayers:
             for i in allLayers:
                 if(type(i) == qgis._core.QgsLayerTreeLayer):
+                    if i.name() == "controles_IGN":
+                        self.control_layer_found = True
+                        self.get_controlpoint_layer()
+                        continue
                     azerty = QTreeWidgetItem(self.dlg_couches.treeWidget)
                     azerty.setText(0, '%s' % i.name())
                     azerty.setCheckState(0, 0)
@@ -539,8 +550,24 @@ class Controles_IGN:
         self.check_layer_boxes()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
+    def create_controlpoint_layer(self):
+        self.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", "controles_IGN", "memory")
+        self.provider = self.controlpoint_layer.dataProvider()
+        self.provider.addAttributes([QgsField("type", QVariant.String),
+                        QgsField("libllé",  QVariant.String),
+                        QgsField("attrubuts objet", QVariant.List)])
+        self.controlpoint_layer.updateFields()
+        self.control_layer_found = True
 
-
+    def get_controlpoint_layer(self):
+        layer = QgsProject.instance().mapLayersByName('controles_IGN')[0]
+        self.controlpoint_layer = layer
+        self.provider = self.controlpoint_layer.dataProvider()
+        self.provider.addAttributes([QgsField("type", QVariant.String),
+                                    QgsField("libllé",  QVariant.String),
+                                    QgsField("attrubuts objet", QVariant.List)])
+        self.controlpoint_layer.updateFields()
+        
 
 # PARTIE DE LANCEMENT DU CODE
 
