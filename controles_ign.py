@@ -22,7 +22,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon, QPixmap, QColor
-from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem
+from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem, QPushButton
 from qgis.core import *
 import qgis
 from sip import delete
@@ -32,7 +32,7 @@ import time
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles
+from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles
 import os.path
 from .controles.rebroussement.rerboussement import rebroussement
 
@@ -56,6 +56,7 @@ class Controles_IGN:
         self.dlg_couches.setFixedSize(self.dlg_couches.size())
         self.dlg_controles = choix_controles()
         self.dlg_controles.setFixedSize(self.dlg_controles.size())
+        self.dlg_voir = voir_controles()
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -337,8 +338,15 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         rebroussement(self)
-        self.iface.messageBar().pushMessage("Info", "Contrôles terminés", level=Qgis.Success, duration=5)
-  
+    
+        widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.get_total_controles())))
+        button = QPushButton(widget)
+        button.setText("Montres Moi")
+        button.pressed.connect(self.show_controles)
+        widget.layout().addWidget(button)
+        self.iface.messageBar().pushWidget(widget, Qgis.Warning)
+
+
   
   # PARTIE COUCHES :
 
@@ -557,11 +565,9 @@ class Controles_IGN:
                         QgsField("libllé",  QVariant.String),
                         QgsField("attrubuts objet", QVariant.List)])
         self.controlpoint_layer.updateFields()
-        
         single_symbol_renderer = self.controlpoint_layer.renderer()
         symbol = single_symbol_renderer.symbol()
         symbol.setColor(QColor.fromRgb(0, 225, 0))
-
         self.control_layer_found = True
 
     def get_controlpoint_layer(self):
@@ -573,6 +579,19 @@ class Controles_IGN:
                                     QgsField("attrubuts objet", QVariant.List)])
         self.controlpoint_layer.updateFields()
         
+    def get_total_controles(self):
+        total = 0
+        if (self.controlpoint_layer):
+            for f in self.controlpoint_layer.getFeatures():
+                geom = f.geometry()
+                for parts in geom.parts():
+                    total += 1
+            return total
+        else:
+            return total
+    
+    def show_controles(self):
+        self.dlg_voir.show()
 
 # PARTIE DE LANCEMENT DU CODE
 
