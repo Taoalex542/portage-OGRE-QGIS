@@ -666,7 +666,6 @@ class Controles_IGN:
     
     def moveto(self):
         self.row = self.dlg_voir.tableWidget.currentRow()
-        print(self.row)
         item = self.dlg_voir.tableWidget.item(self.row, 0)
         canvas = self.iface.mapCanvas()
         scale = canvas.scale()

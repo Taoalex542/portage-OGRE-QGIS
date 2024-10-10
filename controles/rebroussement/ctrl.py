@@ -15,7 +15,6 @@ def rebroussement_ctrl(angle_min, longeur_min, data):
             if angle_min > angle:
                 print ("rebroussement", angle_min, angle)
                 print ("at :", middle)
-                print("data :", previous, middle, points)
                 rebroussement.append(middle)
         previous = middle
         middle = points
