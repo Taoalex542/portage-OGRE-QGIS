@@ -80,3 +80,16 @@ class voir_controles(QtWidgets.QDialog, FORM_CLASS1):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'pas_controles.ui'))
+class pas_controles(QtWidgets.QDialog, FORM_CLASS1):
+
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(pas_controles, self).__init__(parent)
+        # Set up the user interface from Designer.
+        # After setupUI you can access any designer object by doing
+        # self.<objectname>, and you can use autoconnect slots - see
+        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
+        # #widgets-and-dialogs-with-auto-connect
+        self.setupUi(self)

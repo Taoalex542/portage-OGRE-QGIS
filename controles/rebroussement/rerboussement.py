@@ -152,7 +152,7 @@ def rebroussement(self):
                                         for controles in temp:
                                             ctrl = QgsFeature()
                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                            ctrl.setAttributes(["Géométrie.", "Rebroussement", attributes])
+                                            ctrl.setAttributes(["Géométrie", "Rebroussement", attributes])
                                             self.provider.addFeature(ctrl)
                                             self.controlpoint_layer.updateExtents() 
                                             QgsProject.instance().addMapLayer(self.controlpoint_layer)
