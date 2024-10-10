@@ -97,6 +97,7 @@ class Controles_IGN:
         self.control_layer_found = False
         self.voir_clicked = False
         self.clicked_ctrl = None
+        self.row = 0
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -357,7 +358,7 @@ class Controles_IGN:
         button.setText("Montres Moi")
         button.pressed.connect(self.show_controles)
         widget.layout().addWidget(button)
-        self.iface.messageBar().pushWidget(widget, Qgis.Warning)
+        self.iface.messageBar().pushWidget(widget, Qgis.Warning, duration=10)
 
 
   
@@ -617,6 +618,7 @@ class Controles_IGN:
                 self.dlg_voir.showme.clicked.connect(self.moveto)
                 self.dlg_voir.zoom.clicked.connect(self.zoomto)
                 self.dlg_voir.blink.clicked.connect(self.clignoter)
+                self.dlg_voir.suppr.clicked.connect(self.suppr_controle)
                 self.voir_clicked = True
             self.dlg_voir.tableWidget.setRowCount(total)
             header = self.dlg_voir.tableWidget.horizontalHeader()
@@ -651,12 +653,10 @@ class Controles_IGN:
             for f in self.controlpoint_layer.getFeatures():
                 list.append(f.geometry())
             self.iface.mapCanvas().flashGeometries(list)
-
-    # self.timer.timeout.connect( finishFlash )
     
     def zoomto(self):
-        row = self.dlg_voir.tableWidget.currentRow()
-        item = self.dlg_voir.tableWidget.item(row, 0)
+        self.row = self.dlg_voir.tableWidget.currentRow()
+        item = self.dlg_voir.tableWidget.item(self.row, 0)
         canvas = self.iface.mapCanvas()
         canvas.zoomScale(768)
         test = ast.literal_eval(item.text())
@@ -665,8 +665,9 @@ class Controles_IGN:
         canvas.setExtent(rect)
     
     def moveto(self):
-        row = self.dlg_voir.tableWidget.currentRow()
-        item = self.dlg_voir.tableWidget.item(row, 0)
+        self.row = self.dlg_voir.tableWidget.currentRow()
+        print(self.row)
+        item = self.dlg_voir.tableWidget.item(self.row, 0)
         canvas = self.iface.mapCanvas()
         scale = canvas.scale()
         canvas.zoomScale(768)
@@ -675,7 +676,15 @@ class Controles_IGN:
         canvas.setExtent(rect)
         canvas.zoomScale(scale)
                 
-
+    def suppr_controle(self):
+        i = 0
+        self.dlg_voir.tableWidget.removeRow(self.row)
+        with edit(self.controlpoint_layer):
+            for f in self.controlpoint_layer.getFeatures():
+                if i == self.row:
+                    self.controlpoint_layer.deleteFeature(f.id())
+                    return
+                i += 1
 
 # PARTIE DE LANCEMENT DU CODE
 
@@ -705,6 +714,7 @@ class Controles_IGN:
         if self.voir_clicked == False:
             self.dlg_voir.showme.clicked.connect(self.moveto)
             self.dlg_voir.zoom.clicked.connect(self.zoomto)
+            self.dlg_voir.suppr.clicked.connect(self.suppr_controle)
             self.dlg_voir.blink.clicked.connect(self.clignoter)
             self.voir_clicked = True
 
