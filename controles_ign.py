@@ -20,11 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QTimer
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon, QPixmap, QColor
 from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem, QPushButton, QTableWidgetItem, QHeaderView
 from qgis.core import *
-from qgis.gui import QgsHighlight
 import qgis
 from sip import delete
 import base64
