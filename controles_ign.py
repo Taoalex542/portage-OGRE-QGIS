@@ -88,7 +88,7 @@ class Controles_IGN:
         self.value = 0
         self.control_list = []
         self.couche_list = []
-        self.add_controls()
+        self.add_controls(False)
         self.controles_actifs = 0
         self.controles_restants = 0
         self.couches_actives = 0
@@ -99,6 +99,7 @@ class Controles_IGN:
         self.clicked_ctrl = None
         self.row = 0
         self.total_sub_groups = 0
+        self.temp_ctrl_list = []
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -234,6 +235,7 @@ class Controles_IGN:
                 if (num_children != 0):
                     self.global_contrôle_prep(num_children, signal)
         self.dlg_controles.show()
+        self.dlg_controles.treeWidget.expandAll()
     def global_contrôle_prep(self, num_children, parent):
         for items in self.control_list:
             for i in range(parent.childCount()):
@@ -309,7 +311,7 @@ class Controles_IGN:
                 total += 1
 
     # ajoute les contrôles voulus dans le treeView de self.dlg_controles
-    def add_controls(self):
+    def add_controls(self, search):
         self.dlg_controles.treeWidget.setHeaderHidden(True)
         echelle = QTreeWidgetItem(self.dlg_controles.treeWidget)
         echelle.setText(0, '%s' % "Grande Échelle")
@@ -324,7 +326,8 @@ class Controles_IGN:
         item = QTreeWidgetItem(self.dlg_controles.treeWidget)
         item.setText(0, '%s' % "test")
         item.setCheckState(0, 2)
-        self.append_ctrl_to_list()
+        if search == False:
+            self.append_ctrl_to_list()
     
     #renvoie le nombre de controles actifs dans la liste
     def nb_controles_actifs(self):
@@ -380,6 +383,7 @@ class Controles_IGN:
                 if (num_children != 0):
                     self.global_couche_prep(num_children, signal)
         self.dlg_couches.show()
+        self.dlg_couches.treeWidget.expandAll()
     def global_couche_prep(self, num_children, parent):
         for items in self.couche_list:
             for i in range(parent.childCount()):
@@ -585,7 +589,8 @@ class Controles_IGN:
 
     # coche toutes les cases
     def reset(self):
-        self.check_all_ctrl()
+        print("a")
+        self.check_control_boxes()
         self.check_layer_boxes()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
@@ -707,13 +712,69 @@ class Controles_IGN:
 
 # PARTIE DE LANCEMENT DU CODE
 
+    def update_status(self, name, status):
+        for items in self.temp_ctrl_list:
+            if items[0] == name:
+                items[1] = status
+
+    def search_control2(self, num_children, parent):
+        for i in range(parent.childCount()):
+            child = parent.child(i)
+            num_children = child.childCount()
+            if num_children != 0:
+                self.search_control2(num_children, child)
+            else:
+                if [child.text(0), 0] not in self.temp_ctrl_list and [child.text(0), 2] not in self.temp_ctrl_list:
+                    self.temp_ctrl_list.append([child.text(0), child.checkState(0)])
+                else:
+                    self.update_status(child.text(0), child.checkState(0))
+                    
+    def search_update_groups(self, num_children, parent):
+        for items in self.temp_ctrl_list:
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                num_children = child.childCount()
+                if (child.text(0) == items[0]):
+                    child.setCheckState(0, items[1])
+                if num_children != 0:
+                    self.search_update_groups(num_children, child)
+                    
+    def search_control(self):
+        root = self.dlg_controles.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            num_children = signal.childCount()
+            if (num_children != 0):
+                self.search_control2(num_children, signal)
+            else:
+                if [signal.text(0), 0] not in self.temp_ctrl_list and [signal.text(0), 2] not in self.temp_ctrl_list:
+                    self.temp_ctrl_list.append([signal.text(0), signal.checkState(0)])
+                else:
+                    self.update_status(signal.text(0), signal.checkState(0))
+        for i in self.dlg_controles.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
+        if self.dlg_controles.lineEdit.text() == "":
+            self.add_controls(True)
+            for items in self.temp_ctrl_list:
+                root = self.dlg_controles.treeWidget.invisibleRootItem()
+                for i in range(root.childCount()):
+                    signal = root.child(i)
+                    num_children = signal.childCount()
+                    if (signal.text(0) == items[0]):
+                        signal.setCheckState(0, items[1])
+                    if (num_children != 0):
+                        self.search_update_groups(num_children, signal)
+        else:
+            self.dlg_controles.treeWidget.setHeaderHidden(True)
+            for items in self.temp_ctrl_list:
+                if items[0].startswith(self.dlg_controles.lineEdit.text()):
+                    item = QTreeWidgetItem(self.dlg_controles.treeWidget)
+                    item.setText(0, '%s' % items[0])
+                    item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+                    item.setCheckState(0, items[1])
+        self.dlg_controles.treeWidget.expandAll()
+
     def run(self):
         """Run method that performs all the real work"""
-
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
 
         # ajoute les couches dans self.couche_list et dans la boite de selection de self.dlg_couches
         self.add_layers()
@@ -725,15 +786,18 @@ class Controles_IGN:
             return
         self.dlg.show()
         # Run the dialog event loop
-        self.dlg.resetButton.clicked.connect(self.reset)
-        self.dlg.coucheButton.clicked.connect(self.choix_couches)
-        self.dlg.controleButton.clicked.connect(self.choix_controles)
-        self.dlg_controles.buttonBox.clicked.connect(self.update_control_boxes)
-        self.dlg_controles.uncheck_all.clicked.connect(self.uncheck_control_boxes)
-        self.dlg_controles.check_all.clicked.connect(self.check_control_boxes)
-        self.dlg_couches.buttonBox.clicked.connect(self.update_layer_boxes)
-        self.dlg_couches.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
-        self.dlg_couches.check_all.clicked.connect(self.check_layer_boxes)
+        if self.first_start == True:
+            self.first_start = False
+            self.dlg.resetButton.clicked.connect(self.reset)
+            self.dlg.coucheButton.clicked.connect(self.choix_couches)
+            self.dlg.controleButton.clicked.connect(self.choix_controles)
+            self.dlg_controles.buttonBox.clicked.connect(self.update_control_boxes)
+            self.dlg_controles.uncheck_all.clicked.connect(self.uncheck_control_boxes)
+            self.dlg_controles.check_all.clicked.connect(self.check_control_boxes)
+            self.dlg_couches.buttonBox.clicked.connect(self.update_layer_boxes)
+            self.dlg_couches.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
+            self.dlg_couches.check_all.clicked.connect(self.check_layer_boxes)
+            self.dlg_controles.lineEdit.textChanged.connect(self.search_control)
         if self.voir_clicked == False:
             self.dlg_voir.showme.clicked.connect(self.moveto)
             self.dlg_voir.zoom.clicked.connect(self.zoomto)

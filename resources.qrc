@@ -2,6 +2,6 @@
   <qresource prefix="exemples">
     <file>resources_img/ok.png</file>
     <file>resources_img/pas_ok.png</file>
-    <file>resources_img/ign.png</file>
+    <file>resources_img/ign.jpg</file>
   </qresource>
 </RCC>
