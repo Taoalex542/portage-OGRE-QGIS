@@ -5,12 +5,12 @@
 [general]
 name=Controles_IGN
 qgisMinimumVersion=3.0
-description=Saves attributes of the selected vector
-version=0.1
+description=Plugin pour controller les géométries
+version=0.4
 author=Ta'o D
 email=ta-o.darbellay@ign.fr
 
-about=Saves attributes of selected vector in csv file
+about=Plugin pour controller les géométries
 
 tracker=http://bugs
 repository=http://repo
@@ -26,7 +26,7 @@ hasProcessingProvider=no
 tags=python
 
 homepage=http://homepage
-category=Vector
+category=Plugins
 icon=icon.png
 # experimental flag
 experimental=True
@@ -40,7 +40,7 @@ deprecated=False
 # plugin_dependencies=
 
 Category of the plugin: Raster, Vector, Database or Web
-# category=
+# category=Vector
 
 # If the plugin can run on QGIS Server.
 server=False

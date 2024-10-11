@@ -3,7 +3,7 @@
 /***************************************************************************
  Controles_IGNDialog
                                  A QGIS plugin
- Saves attributes of the selected vector
+ Plugin pour controller les géométries
                              -------------------
         begin                : 2024-09-26
         git sha              : $Format:%H$

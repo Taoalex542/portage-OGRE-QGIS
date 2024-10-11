@@ -3,7 +3,7 @@
 /***************************************************************************
  Controles_IGN
                                  A QGIS plugin
- Saves attributes of the selected vector
+ Plugin pour controller les géométries
                               -------------------
         begin                : 2024-09-26
         git sha              : $Format:%H$
@@ -26,7 +26,6 @@ from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem, QPushButton, QTableWid
 from qgis.core import *
 import qgis
 from sip import delete
-import base64
 import ast
 import re
 
@@ -183,7 +182,7 @@ class Controles_IGN:
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToVectorMenu(
+            self.iface.addPluginToMenu(
                 self.menu,
                 action)
 
@@ -214,7 +213,7 @@ class Controles_IGN:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginVectorMenu(
+            self.iface.removePluginMenu(
                 self.tr(u'&Controles_IGN'),
                 action)
             self.iface.removeToolBarIcon(action)

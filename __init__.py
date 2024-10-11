@@ -3,7 +3,7 @@
 /***************************************************************************
  Controles_IGN
                                  A QGIS plugin
- Saves attributes of the selected vector
+ Plugin pour controller les géométries
                              -------------------
         begin                : 2024-09-26
         copyright            : (C) 2024 by Ta'o D
