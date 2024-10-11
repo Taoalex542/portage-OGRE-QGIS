@@ -31,8 +31,8 @@ def read(self):
                     break
             if (angle == 0):
                 angle = int(parametres[0])
-            # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50° ou plus petit que 1°)
-            if (angle > 50 or angle < 1):
+            # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50°)
+            if (angle > 50):
                 angle = 10
                 self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
 
@@ -124,6 +124,7 @@ def rebroussement(self):
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked and layers.name() in objets_controle: #(QtCore.Qt.Checked == 2)
                             # récupère les informations des couches
+                            # print(layers.fields().names())
                             print(layers.name())
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
@@ -146,13 +147,15 @@ def rebroussement(self):
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
                                     temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
-                                    if temp != None:
+                                    if temp != []:
+                                        print("AAAAAAAAAAAAAAAA")
                                         if self.control_layer_found == False:
                                             self.create_controlpoint_layer()
                                         for controles in temp:
+                                            print(f)
                                             ctrl = QgsFeature()
                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                            ctrl.setAttributes(["Géométrie", "Rebroussement", attributes])
+                                            ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), attributes])
                                             self.provider.addFeature(ctrl)
                                             self.controlpoint_layer.updateExtents() 
                                             QgsProject.instance().addMapLayer(self.controlpoint_layer)
@@ -168,32 +171,3 @@ def rebroussement(self):
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
                 self.controles_restants += 1
                 return 2
-
-# canalisation
-# ['934352.30000000004656613', '6849376.59999999962747097', '-1000']
-# ((934352.3, 6849376.6, -1000.0),)
-# LineStringZ (934352.30000000004656613 6849376.59999999962747097 -1000, 934352.09999999997671694 6849364 -1000)
-
-# troncon_de_route
-# ['933836', '6846096.79999999981373549', '226.80000000000001137', '933843.80000000004656613', '6846103', '226.59999999999999432']
-# ((933836.0, 6846096.8, 226.8), (933843.8, 6846103.0, 226.6))
-# LineStringZ (933836 6846096.79999999981373549 226.80000000000001137, 933843.80000000004656613 6846103 226.59999999999999432, 933851 6846108.90000000037252903 226.40000000000000568)
-
-# troncon_de_route
-# ['933836', '6846096.79999999981373549', '226.80000000000001137', '933843.80000000004656613', '6846103', '226.59999999999999432']
-# ((933836.0, 6846096.8, 226.8), (933843.8, 6846103.0, 226.6))
-# LineStringZ (933836 6846096.79999999981373549 226.80000000000001137, 933843.80000000004656613 6846103 226.59999999999999432
-# LineStringZ (933836 6846096.79999999981373549 226.80000000000001137, 933843.80000000004656613 6846103 226.59999999999999432, 933851 6846108.90000000037252903 226.40000000000000568)
-
-# troncon_de_route
-# ['933836', '6846096.79999999981373549', '226.80000000000001137', '933843.80000000004656613', '6846103', '226.59999999999999432', '933851', '6846108.90000000037252903', '226.40000000000000568']
-# ((933836.0, 6846096.8, 226.8), (933843.8, 6846103.0, 226.6), (933851.0, 6846108.9, 226.4))
-# LineStringZ (933836 6846096.79999999981373549 226.80000000000001137, 933843.80000000004656613 6846103 226.59999999999999432
-# LineStringZ (933836 6846096.79999999981373549 226.80000000000001137, 933843.80000000004656613 6846103 226.59999999999999432, 933851 6846108.90000000037252903 226.40000000000000568)
-
-# exemple avec canalisation[0]
-# part.asWkt().rpartition(',')[0]                                                         =>  LineStringZ (934352.30000000004656613 6849376.59999999962747097 -1000
-# part.asWkt()                                                                            =>  LineStringZ (934352.30000000004656613 6849376.59999999962747097 -1000, 934352.09999999997671694 6849364 -1000)
-# re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt())                                     =>  ['934352.30000000004656613', '6849376.59999999962747097', '-1000', '934352.09999999997671694', '6849364', '-1000']
-# tuple(zip(*[map(float, REGEX^)] * nb_for_tuple(self, part.asWkt())))                    =>  ((934352.3, 6849376.6, -1000.0), (934352.1, 6849364.0, -1000.0))
-# valeurs au mètre, avec une précision de 10cm au total (échelle de précision l'ign)

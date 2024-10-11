@@ -53,7 +53,7 @@
       <bool>true</bool>
      </property>
      <property name="columnCount">
-      <number>4</number>
+      <number>5</number>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
@@ -89,6 +89,11 @@
      <column>
       <property name="text">
        <string>Libellé</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Couche</string>
       </property>
      </column>
      <column>

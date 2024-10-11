@@ -575,8 +575,9 @@ class Controles_IGN:
         self.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", "controles_IGN", "memory")
         self.provider = self.controlpoint_layer.dataProvider()
         self.provider.addAttributes([QgsField("type", QVariant.String),
-                        QgsField("libllé",  QVariant.String),
-                        QgsField("attrubuts objet", QVariant.List)])
+                                    QgsField("libellé",  QVariant.String),
+                                    QgsField("couche", QVariant.String),
+                                    QgsField("attributs objet", QVariant.List)])
         self.controlpoint_layer.updateFields()
         single_symbol_renderer = self.controlpoint_layer.renderer()
         symbol = single_symbol_renderer.symbol()
@@ -588,8 +589,9 @@ class Controles_IGN:
         self.controlpoint_layer = layer
         self.provider = self.controlpoint_layer.dataProvider()
         self.provider.addAttributes([QgsField("type", QVariant.String),
-                                    QgsField("libllé",  QVariant.String),
-                                    QgsField("attrubuts objet", QVariant.List)])
+                                    QgsField("libellé",  QVariant.String),
+                                    QgsField("couche", QVariant.String),
+                                    QgsField("attributs objet", QVariant.List)])
         self.controlpoint_layer.updateFields()
         
     def get_total_controles(self):
@@ -624,7 +626,8 @@ class Controles_IGN:
             header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-            header.setSectionResizeMode(3, QHeaderView.Stretch)
+            header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(4, QHeaderView.Stretch)
             for f in self.controlpoint_layer.getFeatures():
                 geom = f.geometry()
                 attributes = f.attributes()
@@ -634,7 +637,7 @@ class Controles_IGN:
                 self.dlg_voir.tableWidget.setItem(i , 0, QTableWidgetItem(str(coords)))
                 self.dlg_voir.tableWidget
                 j = 1
-                # ajoute les attibuts du controle dans le tableau
+                # ajoute les attibuts du controle dans le tableau*
                 for info in attributes:
                     self.dlg_voir.tableWidget.setItem(i , j, QTableWidgetItem(str(info)))
                     j += 1

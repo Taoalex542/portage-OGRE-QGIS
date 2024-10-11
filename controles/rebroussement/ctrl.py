@@ -1,9 +1,9 @@
 # coding=utf-8
 import math
 
-def rebroussement_ctrl(angle_min, longeur_min, data):
+def rebroussement_ctrl(angle_min, longueur_min, data):
     if (len(data) < 3):
-        return None
+        return []
     previous = None
     middle = None
     rebroussement = []
