@@ -1,5 +1,7 @@
 <RCC>
-    <qresource prefix="/plugins/controles_ign" >
-        <file>icon.png</file>
-    </qresource>
+  <qresource prefix="exemples">
+    <file>resources_img/ok.png</file>
+    <file>resources_img/pas_ok.png</file>
+    <file>resources_img/ign.png</file>
+  </qresource>
 </RCC>
