@@ -100,6 +100,7 @@ class Controles_IGN:
         self.row = 0
         self.total_sub_groups = 0
         self.temp_ctrl_list = []
+        self.temp_couche_list = []
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -530,6 +531,7 @@ class Controles_IGN:
 
     # ajoute les layers présents dans la séléction de couche de QGIS dans un treeView
     def add_layers(self):
+        self.total_sub_groups = 0
         self.get_tree_size()
         if (self.total_sub_groups > 1):
             return
@@ -712,7 +714,72 @@ class Controles_IGN:
 
 # PARTIE DE LANCEMENT DU CODE
 
-    def update_status(self, name, status):
+
+    def search_update_couche_status(self, name, status):
+        for items in self.temp_couche_list:
+            if items[0] == name:
+                items[1] = status
+
+    def search_couche2(self, num_children, parent):
+        for i in range(parent.childCount()):
+            child = parent.child(i)
+            num_children = child.childCount()
+            if num_children != 0:
+                self.search_control2(num_children, child)
+            else:
+                if [child.text(0), 0] not in self.temp_couche_list and [child.text(0), 2] not in self.temp_couche_list:
+                    self.temp_couche_list.append([child.text(0), child.checkState(0)])
+                else:
+                    self.search_update_couche_status(child.text(0), child.checkState(0))
+                    
+    def search_update_couche_groups(self, num_children, parent):
+        for items in self.temp_couche_list:
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                num_children = child.childCount()
+                if (child.text(0) == items[0]):
+                    child.setCheckState(0, items[1])
+                if num_children != 0:
+                    self.search_update_couche_groups(num_children, child)
+                    
+    def search_couche(self):
+        root = self.dlg_couches.treeWidget.invisibleRootItem()
+        for i in range(root.childCount()):
+            signal = root.child(i)
+            num_children = signal.childCount()
+            if (num_children != 0):
+                self.search_couche2(num_children, signal)
+            else:
+                if [signal.text(0), 0] not in self.temp_couche_list and [signal.text(0), 2] not in self.temp_couche_list:
+                    self.temp_couche_list.append([signal.text(0), signal.checkState(0)])
+                else:
+                    self.search_update_couche_status(signal.text(0), signal.checkState(0))
+        for i in self.dlg_couches.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
+        if self.dlg_couches.lineEdit.text() == "":
+            self.add_layers()
+            for items in self.temp_couche_list:
+                root = self.dlg_couches.treeWidget.invisibleRootItem()
+                for i in range(root.childCount()):
+                    signal = root.child(i)
+                    num_children = signal.childCount()
+                    if (signal.text(0) == items[0]):
+                        signal.setCheckState(0, items[1])
+                    if (num_children != 0):
+                        self.search_update_couche_groups(num_children, signal)
+        else:
+            self.dlg_couches.treeWidget.setHeaderHidden(True)
+            for items in self.temp_couche_list:
+                if items[0].startswith(self.dlg_couches.lineEdit.text()):
+                    item = QTreeWidgetItem(self.dlg_couches.treeWidget)
+                    item.setText(0, '%s' % items[0])
+                    item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+                    item.setCheckState(0, items[1])
+        self.dlg_couches.treeWidget.expandAll()
+
+
+    # recherche dans les contrôles
+
+    def search_update_status(self, name, status):
         for items in self.temp_ctrl_list:
             if items[0] == name:
                 items[1] = status
@@ -727,7 +794,7 @@ class Controles_IGN:
                 if [child.text(0), 0] not in self.temp_ctrl_list and [child.text(0), 2] not in self.temp_ctrl_list:
                     self.temp_ctrl_list.append([child.text(0), child.checkState(0)])
                 else:
-                    self.update_status(child.text(0), child.checkState(0))
+                    self.search_update_status(child.text(0), child.checkState(0))
                     
     def search_update_groups(self, num_children, parent):
         for items in self.temp_ctrl_list:
@@ -750,7 +817,7 @@ class Controles_IGN:
                 if [signal.text(0), 0] not in self.temp_ctrl_list and [signal.text(0), 2] not in self.temp_ctrl_list:
                     self.temp_ctrl_list.append([signal.text(0), signal.checkState(0)])
                 else:
-                    self.update_status(signal.text(0), signal.checkState(0))
+                    self.search_update_status(signal.text(0), signal.checkState(0))
         for i in self.dlg_controles.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         if self.dlg_controles.lineEdit.text() == "":
             self.add_controls(True)
@@ -798,6 +865,7 @@ class Controles_IGN:
             self.dlg_couches.uncheck_all.clicked.connect(self.uncheck_layer_boxes)
             self.dlg_couches.check_all.clicked.connect(self.check_layer_boxes)
             self.dlg_controles.lineEdit.textChanged.connect(self.search_control)
+            self.dlg_couches.lineEdit.textChanged.connect(self.search_couche)
         if self.voir_clicked == False:
             self.dlg_voir.showme.clicked.connect(self.moveto)
             self.dlg_voir.zoom.clicked.connect(self.zoomto)
