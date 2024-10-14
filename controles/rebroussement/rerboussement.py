@@ -150,7 +150,7 @@ def rebroussement(self):
                                     if temp != []:
                                         print("AAAAAAAAAAAAAAAA")
                                         if self.control_layer_found == False:
-                                            self.create_controlpoint_layer()
+                                            self.affichage_controles.create_controlpoint_layer()
                                         for controles in temp:
                                             print(f)
                                             ctrl = QgsFeature()
