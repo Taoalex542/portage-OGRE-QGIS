@@ -139,4 +139,4 @@ class recherche(QDockWidget):
                     item.setText(0, '%s' % items[0])
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
                     item.setCheckState(0, items[1])
-        self.dlg_controles.treeWidget.expandAll()
+        self.main.dlg_controles.treeWidget.expandAll()
