@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Info</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../resources_img/see.jpg</normaloff>../resources_img/see.jpg</iconset>
+  </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>

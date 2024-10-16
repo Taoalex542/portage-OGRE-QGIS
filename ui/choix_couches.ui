@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Choisir les couches actives</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../resources_img/ign.jpg</normaloff>../resources_img/ign.jpg</iconset>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>

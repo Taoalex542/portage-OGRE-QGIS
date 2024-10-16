@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Contrôles</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../resources_img/see.jpg</normaloff>../resources_img/see.jpg</iconset>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QTableWidget" name="tableWidget">

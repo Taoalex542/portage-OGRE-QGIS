@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Contrôles IGN</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../resources_img/ign.jpg</normaloff>../resources_img/ign.jpg</iconset>
+  </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
