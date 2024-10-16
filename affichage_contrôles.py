@@ -16,7 +16,7 @@ class affichage_controles(QDockWidget):
     
     # créé la couche pour les contrôles
     def create_controlpoint_layer(self):
-        self.main.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", "controles_IGN", "memory")
+        self.main.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", self.main.controlpoint_layer_name, "memory")
         self.main.provider = self.main.controlpoint_layer.dataProvider()
         self.main.provider.addAttributes([QgsField("type", QVariant.String),
                                     QgsField("libellé",  QVariant.String),
@@ -27,9 +27,10 @@ class affichage_controles(QDockWidget):
         symbol = single_symbol_renderer.symbol()
         symbol.setColor(QColor.fromRgb(0, 225, 0))
         QgsProject.instance().addMapLayer(self.main.controlpoint_layer)
-        layer = QgsProject.instance().mapLayersByName("controles_IGN")[0]
+        
+        #créé une copie du layer l'ajoute au dessus, et supprime l'originale, permettant de toujours avoir la couche de contôles au dessus de toutes les autres couches
         root = QgsProject.instance().layerTreeRoot()
-        mylayer = root.findLayer(layer.id())
+        mylayer = root.findLayer(self.main.controlpoint_layer.id())
         myClone = mylayer.clone()
         parent = mylayer.parent()
         root.insertChildNode(0, myClone)
@@ -40,7 +41,7 @@ class affichage_controles(QDockWidget):
     # renvoie le nombre total d'objets contrôles présents dans la couche temporaire
     def get_total_controles(self):
         total = 0
-        layer = QgsProject.instance().mapLayersByName('controles_IGN')
+        layer = QgsProject.instance().mapLayersByName(self.main.controlpoint_layer_name)
         test = len(layer)
         if test == 0:
             self.main.control_layer_found = False

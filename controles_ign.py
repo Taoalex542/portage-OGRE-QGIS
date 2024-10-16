@@ -24,6 +24,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton
 from qgis.core import QgsProject, Qgis
+from datetime import datetime
 from .gestion_couches import gestion_couches
 from .gestion_contrôles import gestion_controles
 from .recherche import recherche
@@ -96,6 +97,8 @@ class Controles_IGN:
         self.voir_clicked = False
         self.clicked_ctrl = None
         self.row = 0
+        self.date = datetime.today().strftime('%d_%m_%Y')
+        self.controlpoint_layer_name = "controles_IGN_" + self.date
         self.total_sub_groups = 0
         self.temp_ctrl_list = []
         self.temp_couche_list = []

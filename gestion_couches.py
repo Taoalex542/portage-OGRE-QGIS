@@ -194,9 +194,9 @@ class gestion_couches(QDockWidget):
         if allLayers:
             for i in allLayers:
                 if(type(i) == qgis._core.QgsLayerTreeLayer):
-                    if i.name() == "controles_IGN":
+                    if i.name() == self.main.controlpoint_layer_name:
                         self.main.control_layer_found = True
-                        layer = QgsProject.instance().mapLayersByName('controles_IGN')[0]
+                        layer = QgsProject.instance().mapLayersByName(self.main.controlpoint_layer_name)[0]
                         self.controlpoint_layer = layer
                         continue
                     azerty = QTreeWidgetItem(self.main.dlg_couches.treeWidget)
