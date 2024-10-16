@@ -17,7 +17,7 @@
    <item>
     <widget class="QTableWidget" name="tableWidget">
      <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
      </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
@@ -50,7 +50,10 @@
       <bool>true</bool>
      </property>
      <property name="wordWrap">
-      <bool>true</bool>
+      <bool>false</bool>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
      </property>
      <property name="columnCount">
       <number>5</number>
@@ -71,7 +74,7 @@
       <bool>true</bool>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>

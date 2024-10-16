@@ -236,7 +236,7 @@ class Controles_IGN:
             return
         self.gestion_couches.get_active_layers()
         if (self.couches_actives <= 0):
-            self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnes", level=Qgis.Warning, duration=10)
+            self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnée", level=Qgis.Warning, duration=10)
             return
         if self.affichage_controles.get_total_controles() != 0:
             qinst = QgsProject.instance()

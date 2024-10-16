@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-from qgis.core import *
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY
 from qgis import *
 from qgis.PyQt.QtWidgets import QProgressDialog
 from .ctrl import rebroussement_ctrl
@@ -57,31 +57,33 @@ def read(self):
         self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
         return [10, 0.01]
 
-def get_info_in_groups(self, parent, objets_controle, quantity):
+def get_info_in_groups(self, parent, quantity):
     for items in self.couche_list:
         for childs in parent.children():
-            if childs.name() == items[0] and items[2] == QtCore.Qt.Checked and childs.name() in objets_controle:
+            if childs.name() == items[0] and items[2] == QtCore.Qt.Checked:
                 for f in childs.getFeatures():
                     geom = f.geometry()
                     for part in geom.parts():
-                        quantity += 1
+                        if ("LineString" in QgsWkbTypes.displayString(part.wkbType())):
+                            quantity += 1
 
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
-def get_quantity(self, objets_controle):
+def get_quantity(self):
     quantity = 0
     allLayers = QgsProject.instance().mapLayers().values()
     for layers in allLayers:
         for items in self.couche_list:
             if(type(layers) == qgis._core.QgsLayerTreeGroup):
-                get_info_in_groups(self, layers, objets_controle, quantity)
+                get_info_in_groups(self, layers, quantity)
                 continue
             # si la couche est présente dans la liste et qu'elle est cochée et qu'elle est présente dans les objets voulu
-            if layers.name() == items[0] and items[2] == QtCore.Qt.Checked and layers.name() in objets_controle: #(QtCore.Qt.Checked == 2)
+            if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                 # récupère les informations des couches
                 for f in layers.getFeatures():
                     geom = f.geometry()
                     for part in geom.parts():
-                        quantity += 1
+                        if ("LineString" in QgsWkbTypes.displayString(part.wkbType())):
+                            quantity += 1
     return quantity
 
 def nb_for_tuple(self, str):
@@ -96,15 +98,15 @@ def nb_for_tuple(self, str):
 # execution du controle
 def rebroussement(self):
     nom_controle = "rebroussement"
-    objets_controle = ["limite_administrative", "ligne_frontalière", "tronçon_hydrographique", "limite_terre_mer"
-               , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
-               , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
-               , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
+    # objets_controle = ["limite_administrative", "ligne_frontalière", "tronçon_hydrographique", "limite_terre_mer"
+    #            , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
+    #            , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
+    #            , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
     for item in self.dlg_controles.treeWidget.findItems("rebroussement", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0
-            quantity = get_quantity(self, objets_controle)
+            quantity = get_quantity(self)
             print("nombre d'objets", quantity)
             if quantity > 0:
                 # informe l'utilisateur le lancement du contrôle
@@ -122,20 +124,20 @@ def rebroussement(self):
                     # parcours la liste actuelle des couches
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
-                        if layers.name() == items[0] and items[2] == QtCore.Qt.Checked and layers.name() in objets_controle: #(QtCore.Qt.Checked == 2)
+                        if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                             # récupère les informations des couches
                             # print(layers.fields().names())
-                            print(layers.name())
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
-                                attributes = f.attributes()
                                 # print('Area :', geom.area())
                                 # print('Perimeter :', geom.length())
                                 # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès
+                                    if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):
+                                        break
                                     bar.setValue(int(items_done / quantity * 100))
                                     # mets comme type de données l'ESPG 2154
                                     # part.transform(QgsCoordinateTransform(
@@ -148,16 +150,18 @@ def rebroussement(self):
                                     # lance le controle rebroussement
                                     temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
                                     if temp != []:
-                                        print("AAAAAAAAAAAAAAAA")
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()
                                         for controles in temp:
+                                            test = []
+                                            test.append(f.attributes())
+                                            test.append(layers.fields().names())
                                             print(f)
                                             ctrl = QgsFeature()
                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                            ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), attributes])
+                                            ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), test])
                                             self.provider.addFeature(ctrl)
-                                            self.controlpoint_layer.updateExtents() 
+                                            self.controlpoint_layer.updateExtents()
                                             QgsProject.instance().addMapLayer(self.controlpoint_layer)
                                     temp = []
                                     items_done += 1
@@ -171,3 +175,76 @@ def rebroussement(self):
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
                 self.controles_restants += 1
                 return 2
+
+# different types of geometries:
+
+# Unknown: Unknown
+# Point: Point
+# LineString: LineString
+# Polygon: Polygon
+# Triangle: Triangle
+# MultiPoint: MultiPoint
+# MultiLineString: MultiLineString
+# MultiPolygon: MultiPolygon
+# GeometryCollection: GeometryCollection
+# CircularString: CircularString
+# CompoundCurve: CompoundCurve
+# CurvePolygon: CurvePolygon
+# MultiCurve: MultiCurve
+# MultiSurface: MultiSurface
+# PolyhedralSurface: PolyhedralSurface
+# Added in version 3.40.
+# TIN: TIN
+# Added in version 3.40.
+# NoGeometry: No geometry
+# PointZ: PointZ
+# LineStringZ: LineStringZ
+# PolygonZ: PolygonZ
+# TriangleZ: TriangleZ
+# MultiPointZ: MultiPointZ
+# MultiLineStringZ: MultiLineStringZ
+# MultiPolygonZ: MultiPolygonZ
+# GeometryCollectionZ: GeometryCollectionZ
+# CircularStringZ: CircularStringZ
+# CompoundCurveZ: CompoundCurveZ
+# CurvePolygonZ: CurvePolygonZ
+# MultiCurveZ: MultiCurveZ
+# MultiSurfaceZ: MultiSurfaceZ
+# PolyhedralSurfaceZ: PolyhedralSurfaceZ
+# TINZ: TINZ
+# PointM: PointM
+# LineStringM: LineStringM
+# PolygonM: PolygonM
+# TriangleM: TriangleM
+# MultiPointM: MultiPointM
+# MultiLineStringM: MultiLineStringM
+# MultiPolygonM: MultiPolygonM
+# GeometryCollectionM: GeometryCollectionM
+# CircularStringM: CircularStringM
+# CompoundCurveM: CompoundCurveM
+# CurvePolygonM: CurvePolygonM
+# MultiCurveM: MultiCurveM
+# MultiSurfaceM: MultiSurfaceM
+# PolyhedralSurfaceM: PolyhedralSurfaceM
+# TINM: TINM
+# PointZM: PointZM
+# LineStringZM: LineStringZM
+# PolygonZM: PolygonZM
+# MultiPointZM: MultiPointZM
+# MultiLineStringZM: MultiLineStringZM
+# MultiPolygonZM: MultiPolygonZM
+# GeometryCollectionZM: GeometryCollectionZM
+# CircularStringZM: CircularStringZM
+# CompoundCurveZM: CompoundCurveZM
+# CurvePolygonZM: CurvePolygonZM
+# MultiCurveZM: MultiCurveZM
+# MultiSurfaceZM: MultiSurfaceZM
+# PolyhedralSurfaceZM: PolyhedralSurfaceM
+# TINZM: TINZM
+# TriangleZM: TriangleZM
+# Point25D: Point25D
+# LineString25D: LineString25D
+# Polygon25D: Polygon25D
+# MultiPoint25D: MultiPoint25D
+# MultiLineString25D: MultiLineString25D
+# MultiPolygon25D: MultiPolygon25D

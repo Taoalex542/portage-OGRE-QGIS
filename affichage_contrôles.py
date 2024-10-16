@@ -1,4 +1,4 @@
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QDateTime
 from qgis.PyQt.QtGui import  QColor
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QHeaderView, QDockWidget
 from qgis.core import *
@@ -54,6 +54,20 @@ class affichage_controles(QDockWidget):
         else:
             return total
     
+    def add_names_to_values(self, data):
+        list = ""
+        for i in range (len(data[0])):
+            string = str(data[1][i])
+            string += ": "
+            if(type(data[0][i]) == QDateTime):
+                string += data[0][i].toString()
+            else:
+                string += str(data[0][i])
+            if i < len(data[0]) - 1:
+                string += " | "
+            list += string
+        return list
+    
     def show_controles(self):
         total = self.get_total_controles()
         i = 0
@@ -70,7 +84,7 @@ class affichage_controles(QDockWidget):
             header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-            header.setSectionResizeMode(4, QHeaderView.Stretch)
+            header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
             for f in self.main.controlpoint_layer.getFeatures():
                 geom = f.geometry()
                 attributes = f.attributes()
@@ -78,11 +92,13 @@ class affichage_controles(QDockWidget):
                 nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', str(QgsGeometry.asPoint(geom)))
                 coords = tuple(zip(*[map(float, nums)] * 2))[0]
                 self.main.dlg_voir.tableWidget.setItem(i , 0, QTableWidgetItem(str(coords)))
-                self.main.dlg_voir.tableWidget
                 j = 1
                 # ajoute les attibuts du controle dans le tableau*
                 for info in attributes:
-                    self.main.dlg_voir.tableWidget.setItem(i , j, QTableWidgetItem(str(info)))
+                    temp = info
+                    if (j == 4):
+                        temp = self.add_names_to_values(info)
+                    self.main.dlg_voir.tableWidget.setItem(i , j, QTableWidgetItem(str(temp)))
                     j += 1
                 i += 1
             self.main.dlg_voir.show()
