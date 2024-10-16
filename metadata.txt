@@ -12,8 +12,7 @@ email=ta-o.darbellay@ign.fr
 
 about=Plugin pour controller les géométries
 
-tracker=http://bugs
-repository=http://repo
+repository=https://github.com/Taoalex542/portage-OGRE-QGIS
 # End of mandatory metadata
 
 # Recommended items:
@@ -25,7 +24,7 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://www.ign.fr/
 category=Plugins
 icon=resources_img/ign.jpg
 # experimental flag
