@@ -28,7 +28,7 @@ from qgis.PyQt import QtWidgets
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'controles_ign_dialog_base.ui'))
+    os.path.dirname(__file__), 'ui/controles_ign_dialog_base.ui'))
 
 
 class Controles_IGNDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -42,7 +42,7 @@ class Controles_IGNDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'choix_couches.ui'))
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'ui/choix_couches.ui'))
 class choix_couche(QtWidgets.QDialog, FORM_CLASS1):
 
     def __init__(self, parent=None):
@@ -55,7 +55,7 @@ class choix_couche(QtWidgets.QDialog, FORM_CLASS1):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'choix_controles.ui'))
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'ui/choix_controles.ui'))
 class choix_controles(QtWidgets.QDialog, FORM_CLASS1):
 
     def __init__(self, parent=None):
@@ -68,7 +68,7 @@ class choix_controles(QtWidgets.QDialog, FORM_CLASS1):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'voir_controles.ui'))
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'ui/voir_controles.ui'))
 class voir_controles(QtWidgets.QDialog, FORM_CLASS1):
 
     def __init__(self, parent=None):
@@ -81,7 +81,7 @@ class voir_controles(QtWidgets.QDialog, FORM_CLASS1):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'pas_controles.ui'))
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'ui/pas_controles.ui'))
 class pas_controles(QtWidgets.QDialog, FORM_CLASS1):
 
     def __init__(self, parent=None):
@@ -94,7 +94,7 @@ class pas_controles(QtWidgets.QDialog, FORM_CLASS1):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'trop_de_couches.ui'))
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__),'ui/trop_de_couches.ui'))
 class trop_de_couches(QtWidgets.QDialog, FORM_CLASS1):
 
     def __init__(self, parent=None):
