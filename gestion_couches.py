@@ -1,5 +1,5 @@
 from qgis.PyQt.QtWidgets import QTreeWidgetItem, QDockWidget
-from qgis.core import *
+from qgis.core import QgsProject
 import qgis
 from sip import delete
 from .resources import *
@@ -28,7 +28,7 @@ class gestion_couches(QDockWidget):
                 if (signal.text(0) == items[0]):
                     signal.setCheckState(0, items[2])
                 if (num_children != 0):
-                    self.main.global_couche_prep(num_children, signal)
+                    self.global_couche_prep(num_children, signal)
         self.main.dlg_couches.show()
         self.main.dlg_couches.treeWidget.expandAll()
     def global_couche_prep(self, num_children, parent):
@@ -39,7 +39,7 @@ class gestion_couches(QDockWidget):
                 if (child.text(0) == items[0]):
                     child.setCheckState(0, items[2])
                 if num_children != 0:
-                    self.main.global_couche_prep(num_children, child)
+                    self.global_couche_prep(num_children, child)
 
     # coche ou décoche toutes les couches présentes dans le treeView
     def global_checkbox_edit(self, check):
@@ -158,6 +158,7 @@ class gestion_couches(QDockWidget):
             child.setCheckState(0, QtCore.Qt.Unchecked)
         return 0
 
+    # récupère la taille de l'abrorésence des couches
     def get_tree_size(self):
         allLayers = qgis.core.QgsProject.instance().layerTreeRoot().children()
         if allLayers:
@@ -182,7 +183,7 @@ class gestion_couches(QDockWidget):
         if (self.main.total_sub_groups > 1):
             return
         self.main.dlg_couches.treeWidget.setHeaderHidden(True)
-        allLayers = qgis.core.QgsProject.instance().layerTreeRoot().children()
+        allLayers = QgsProject.instance().layerTreeRoot().children()
         # copie le tableau self.main.couche_list si il existe
         temp = []
         if self.main.couche_list != []:
@@ -195,7 +196,8 @@ class gestion_couches(QDockWidget):
                 if(type(i) == qgis._core.QgsLayerTreeLayer):
                     if i.name() == "controles_IGN":
                         self.main.control_layer_found = True
-                        self.main.affichage_controles.get_controlpoint_layer()
+                        layer = QgsProject.instance().mapLayersByName('controles_IGN')[0]
+                        self.controlpoint_layer = layer
                         continue
                     azerty = QTreeWidgetItem(self.main.dlg_couches.treeWidget)
                     azerty.setText(0, '%s' % i.name())
@@ -213,7 +215,7 @@ class gestion_couches(QDockWidget):
             self.main.couche_list.append([signal.text(0), total, signal.checkState(0)])
             num_children = signal.childCount()
             if (num_children != 0):
-                self.main.append_for_groups(num_children, signal, total)
+                self.append_for_groups(num_children, signal, total)
             total += 1
         # mets les anciennes variables décochées de nouveau cochées
         if temp != []:
@@ -221,7 +223,7 @@ class gestion_couches(QDockWidget):
                 for new_item in self.main.couche_list:
                     if old_item[0] == new_item[0]:
                         new_item[2] = old_item[2]
-        # coche toutes les boites à checker
+        # coche toutes les boites à cocher
         for items in self.main.couche_list:
             for i in range(root.childCount()):
                 signal = root.child(i)
@@ -229,4 +231,4 @@ class gestion_couches(QDockWidget):
                 if (signal.text(0) == items[0] and signal.checkState(0) != items[2]):
                     signal.setCheckState(0, items[2])
                 if (num_children != 0):
-                    self.main.check_groups(num_children, signal)
+                    self.check_groups(num_children, signal)

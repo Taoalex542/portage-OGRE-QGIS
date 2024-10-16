@@ -20,14 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QResource
-from qgis.PyQt.QtGui import QIcon, QPixmap, QColor
-from qgis.PyQt.QtWidgets import QAction, QTreeWidgetItem, QPushButton, QTableWidgetItem, QHeaderView
-from qgis.core import *
-import qgis
-from sip import delete
-import ast
-import re
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QPushButton
+from qgis.core import QgsProject, Qgis
 from .gestion_couches import gestion_couches
 from .gestion_contrôles import gestion_controles
 from .recherche import recherche

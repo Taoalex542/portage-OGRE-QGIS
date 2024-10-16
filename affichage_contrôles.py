@@ -1,7 +1,7 @@
 from qgis.PyQt.QtCore import QVariant, QDateTime
 from qgis.PyQt.QtGui import  QColor
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QHeaderView, QDockWidget
-from qgis.core import *
+from qgis.core import QgsField, QgsVectorLayer, QgsProject, QgsGeometry, QgsRectangle, edit
 import ast
 import re
 from .resources import *
@@ -13,7 +13,8 @@ class affichage_controles(QDockWidget):
         super(affichage_controles, self).__init__(parent)
         self.iface = iface
         self.main = main
-        
+    
+    # créé la couche pour les contrôles
     def create_controlpoint_layer(self):
         self.main.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", "controles_IGN", "memory")
         self.main.provider = self.main.controlpoint_layer.dataProvider()
@@ -25,18 +26,18 @@ class affichage_controles(QDockWidget):
         single_symbol_renderer = self.main.controlpoint_layer.renderer()
         symbol = single_symbol_renderer.symbol()
         symbol.setColor(QColor.fromRgb(0, 225, 0))
+        QgsProject.instance().addMapLayer(self.main.controlpoint_layer)
+        layer = QgsProject.instance().mapLayersByName("controles_IGN")[0]
+        root = QgsProject.instance().layerTreeRoot()
+        mylayer = root.findLayer(layer.id())
+        myClone = mylayer.clone()
+        parent = mylayer.parent()
+        root.insertChildNode(0, myClone)
+        parent.removeChildNode(mylayer)
+        self.main.controlpoint_layer = myClone.layer()
         self.main.control_layer_found = True
-
-    def get_controlpoint_layer(self):
-        layer = QgsProject.instance().mapLayersByName('controles_IGN')[0]
-        self.main.controlpoint_layer = layer
-        self.main.provider = self.main.controlpoint_layer.dataProvider()
-        self.main.provider.addAttributes([QgsField("type", QVariant.String),
-                                    QgsField("libellé",  QVariant.String),
-                                    QgsField("couche", QVariant.String),
-                                    QgsField("attributs objet", QVariant.List)])
-        self.main.controlpoint_layer.updateFields()
-        
+    
+    # renvoie le nombre total d'objets contrôles présents dans la couche temporaire
     def get_total_controles(self):
         total = 0
         layer = QgsProject.instance().mapLayersByName('controles_IGN')
@@ -54,6 +55,7 @@ class affichage_controles(QDockWidget):
         else:
             return total
     
+    # formate les valeurs de la cinquème colone pour avoir le nom devant les valeurs, et avoir le bon format des dates
     def add_names_to_values(self, data):
         list = ""
         for i in range (len(data[0])):
@@ -68,6 +70,8 @@ class affichage_controles(QDockWidget):
             list += string
         return list
     
+    # popule le tableau avec tous les contrôles et leurs informations
+    # si il n'y a pas de controles, montre la fenêtres "pas_controles", sinon montre la fenêtre "voir_contrôles"
     def show_controles(self):
         total = self.get_total_controles()
         i = 0
@@ -108,6 +112,7 @@ class affichage_controles(QDockWidget):
         else:
             self.main.dlg_pas.show()
     
+    # fait clignoter tous les objets contrôles
     def clignoter(self):
         list = []
         if self.get_total_controles != 0:
@@ -115,6 +120,7 @@ class affichage_controles(QDockWidget):
                 list.append(f.geometry())
             self.main.iface.mapCanvas().flashGeometries(list)
     
+    # déplace la caméra et zoome sur l'objet à une échelle de 1:8
     def zoomto(self):
         self.main.row = self.main.dlg_voir.tableWidget.currentRow()
         item = self.main.dlg_voir.tableWidget.item(self.main.row, 0)
@@ -125,6 +131,7 @@ class affichage_controles(QDockWidget):
         canvas.zoomScale(8)
         canvas.setExtent(rect)
     
+    # déplace la "caméra" et gardes le zoom actuel de l'utilisateur, le changement d'échelle est nécéssaire pour mieux centrer le controle
     def moveto(self):
         self.main.row = self.main.dlg_voir.tableWidget.currentRow()
         item = self.main.dlg_voir.tableWidget.item(self.main.row, 0)
@@ -135,7 +142,8 @@ class affichage_controles(QDockWidget):
         rect = QgsRectangle(test[0], test[1], test[0], test[1])
         canvas.setExtent(rect)
         canvas.zoomScale(scale)
-                
+    
+    # récupère le contrôle choisi et le supprime de la couche ainsi que du tableau
     def suppr_controle(self):
         i = 0
         self.main.dlg_voir.tableWidget.removeRow(self.main.row)

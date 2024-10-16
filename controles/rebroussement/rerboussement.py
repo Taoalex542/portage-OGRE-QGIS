@@ -1,7 +1,7 @@
 # coding=utf-8
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY
-from qgis import *
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
+from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 from .ctrl import rebroussement_ctrl
 import re
@@ -57,26 +57,13 @@ def read(self):
         self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
         return [10, 0.01]
 
-def get_info_in_groups(self, parent, quantity):
-    for items in self.couche_list:
-        for childs in parent.children():
-            if childs.name() == items[0] and items[2] == QtCore.Qt.Checked:
-                for f in childs.getFeatures():
-                    geom = f.geometry()
-                    for part in geom.parts():
-                        if ("LineString" in QgsWkbTypes.displayString(part.wkbType())):
-                            quantity += 1
-
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self):
     quantity = 0
     allLayers = QgsProject.instance().mapLayers().values()
     for layers in allLayers:
         for items in self.couche_list:
-            if(type(layers) == qgis._core.QgsLayerTreeGroup):
-                get_info_in_groups(self, layers, quantity)
-                continue
-            # si la couche est présente dans la liste et qu'elle est cochée et qu'elle est présente dans les objets voulu
+            # si la couche est cochée
             if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                 # récupère les informations des couches
                 for f in layers.getFeatures():
@@ -153,16 +140,16 @@ def rebroussement(self):
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()
                                         for controles in temp:
-                                            test = []
-                                            test.append(f.attributes())
-                                            test.append(layers.fields().names())
-                                            print(f)
-                                            ctrl = QgsFeature()
-                                            ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                            ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), test])
-                                            self.provider.addFeature(ctrl)
-                                            self.controlpoint_layer.updateExtents()
-                                            QgsProject.instance().addMapLayer(self.controlpoint_layer)
+                                            with edit(self.controlpoint_layer):
+                                                test = []
+                                                test.append(f.attributes())
+                                                test.append(layers.fields().names())
+                                                print(f)
+                                                ctrl = QgsFeature()
+                                                ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
+                                                ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), test])
+                                                self.controlpoint_layer.dataProvider().addFeature(ctrl)
+                                                self.controlpoint_layer.updateExtents()
                                     temp = []
                                     items_done += 1
                                     if (bar.wasCanceled()):
