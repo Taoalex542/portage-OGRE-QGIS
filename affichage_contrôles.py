@@ -115,9 +115,12 @@ class affichage_controles(QDockWidget):
     # fait clignoter tous les objets contrôles
     def clignoter(self):
         list = []
+        i = 0
         if self.get_total_controles != 0:
             for f in self.main.controlpoint_layer.getFeatures():
-                list.append(f.geometry())
+                if i == self.main.row:
+                    list.append(f.geometry())
+                i += 1
             self.main.iface.mapCanvas().flashGeometries(list)
     
     # déplace la caméra et zoome sur l'objet à une échelle de 1:8
