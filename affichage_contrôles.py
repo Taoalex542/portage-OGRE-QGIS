@@ -150,10 +150,11 @@ class affichage_controles(QDockWidget):
     # récupère le contrôle choisi et le supprime de la couche ainsi que du tableau
     def suppr_controle(self):
         i = 0
-        self.main.dlg_voir.tableWidget.removeRow(self.main.row)
+        self.main.row = self.main.dlg_voir.tableWidget.currentRow()
         with edit(self.main.controlpoint_layer):
             for f in self.main.controlpoint_layer.getFeatures():
                 if i == self.main.row:
+                    self.main.dlg_voir.tableWidget.removeRow(self.main.row)
                     self.main.controlpoint_layer.deleteFeature(f.id())
                     return
                 i += 1

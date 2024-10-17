@@ -201,7 +201,6 @@ class Controles_IGN:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        # image en base64 utilisée pour l'icone, permettant de ne pas avoir l'image en local
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\ign.jpg"
         self.add_action(
             icon_path,

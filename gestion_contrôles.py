@@ -112,7 +112,7 @@ class gestion_controles(QDockWidget):
         item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
         item.setCheckState(0, 2)
         item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-        item.setText(0, '%s' % "test")
+        item.setText(0, '%s' % "contrôle vide")
         item.setCheckState(0, 2)
         if search == False:
             self.append_ctrl_to_list()
