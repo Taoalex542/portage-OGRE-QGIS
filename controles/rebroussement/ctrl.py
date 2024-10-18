@@ -13,8 +13,6 @@ def rebroussement_ctrl(angle_min, longueur_min, data):
             if angle < 0:
                 angle += 360
             if angle_min > angle:
-                print ("rebroussement", angle_min, angle)
-                print ("at :", middle)
                 rebroussement.append(middle)
         previous = middle
         middle = points

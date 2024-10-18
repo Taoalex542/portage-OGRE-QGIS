@@ -36,6 +36,7 @@ from .resources import *
 from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches
 import os.path
 from .controles.rebroussement.rerboussement import rebroussement
+from .controles.controle_vide.controle_vide import controle_vide
 
 
 class Controles_IGN:
@@ -240,6 +241,7 @@ class Controles_IGN:
             qinst = QgsProject.instance()
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
+        controle_vide(self)
         rebroussement(self)
     
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
