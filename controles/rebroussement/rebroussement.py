@@ -3,8 +3,8 @@ import os
 from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
-from .ctrl import rebroussement_ctrl
 import re
+
 
 # lecture du fichier param.txt pour les paramètres du controles
 # un seul paramètre est pris en comote actuellement, et ne prends que les chiffres
@@ -83,7 +83,7 @@ def nb_for_tuple(self, str):
     return nb
 
 # execution du controle
-def rebroussement(self):
+def rebroussement(self, func):
     nom_controle = "rebroussement"
     # objets_controle = ["limite_administrative", "ligne_frontalière", "tronçon_hydrographique", "limite_terre_mer"
     #            , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
@@ -135,7 +135,7 @@ def rebroussement(self):
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    temp = rebroussement_ctrl(parametres[0], parametres[1], coords)
+                                    temp = func(parametres[0], parametres[1], coords)
                                     if temp != []:
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()

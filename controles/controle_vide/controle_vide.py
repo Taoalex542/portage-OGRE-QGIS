@@ -3,7 +3,6 @@ import os
 from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
-from .ctrl import controle_vide_ctrl
 import re
 
 # lecture du fichier param.txt pour les paramètres du controles
@@ -83,7 +82,7 @@ def nb_for_tuple(self, str):
     return nb
 
 # execution du controle
-def controle_vide(self):
+def controle_vide(self, func):
     nom_controle = "contrôle vide"
     # objets_controle = ["limite_administrative", "ligne_frontalière", "tronçon_hydrographique", "limite_terre_mer"
     #            , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
@@ -135,7 +134,7 @@ def controle_vide(self):
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    temp = controle_vide_ctrl(parametres[0], coords)
+                                    temp = func(parametres[0], coords)
                                     if temp != []:
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()

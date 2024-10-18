@@ -25,6 +25,8 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton
 from qgis.core import QgsProject, Qgis
 from datetime import datetime
+import os
+import importlib
 from .gestion_couches import gestion_couches
 from .gestion_contrôles import gestion_controles
 from .recherche import recherche
@@ -35,8 +37,8 @@ from .resources import *
 # Import the code for the dialog
 from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches
 import os.path
-from .controles.rebroussement.rerboussement import rebroussement
-from .controles.controle_vide.controle_vide import controle_vide
+# from .controles.rebroussement.rerboussement import rebroussement
+# from .controles.controle_vide.controle_vide import controle_vide
 
 
 class Controles_IGN:
@@ -108,6 +110,9 @@ class Controles_IGN:
         self.recherche = recherche(self, self.iface, self.iface.mainWindow())
         self.affichage_controles = affichage_controles(self, self.iface, self.iface.mainWindow())
         self.gestion_controles.add_controls(False)
+        self.loaded_controles = []
+        self.dynamic_import_from_src(os.path.dirname(os.path.realpath(__file__)) + "\\controles", False)
+        print(self.loaded_controles)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -241,8 +246,10 @@ class Controles_IGN:
             qinst = QgsProject.instance()
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
-        controle_vide(self)
-        rebroussement(self)
+        if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
+            controle_vide.controle_vide(self, ctrl_controle_vide.controle_vide_ctrl)
+        if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
+            rebroussement.rebroussement(self, ctrl_rebroussement.rebroussement_ctrl)
     
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
         button = QPushButton(widget)
@@ -257,7 +264,34 @@ class Controles_IGN:
         self.gestion_couches.check_layer_boxes()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
-    
+
+    def get_py_files(self, src):
+        cwd = os.getcwd() # Current Working directory
+        py_files = [] 
+        for root, dirs, files in os.walk(src):
+            for file in files:
+                if file.endswith(".py"):
+                    self.loaded_controles.append(file)
+                    py_files.append(os.path.join(cwd, root, file))
+        return py_files
+
+    def dynamic_import(self, module_name, py_path):
+        module_spec = importlib.util.spec_from_file_location(module_name, py_path)
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        return module
+
+    def dynamic_import_from_src(self, src, star_import = False):
+        my_py_files = self.get_py_files(src)
+        for py_file in my_py_files:
+            module_name = os.path.split(py_file)[-1].strip(".py")
+            imported_module = self.dynamic_import(module_name, py_file)
+            if star_import:
+                for obj in dir(imported_module):
+                    globals()[obj] = imported_module.__dict__[obj]
+            else:
+                globals()[module_name] = imported_module
+        return
 
 # PARTIE DE LANCEMENT DU CODE
 
