@@ -98,22 +98,41 @@ class gestion_controles(QDockWidget):
                 self.main.control_list.append([child.text(0), total, child.checkState(0)])
                 total += 1
 
+    def joli_noms(self, controle):
+        test = controle.copy()
+        for i in range(len(test)):
+            for j in range(len(test[i])):
+                if (test[i][j] == '_'):
+                    test[i] = test[i][:j] + ' ' + test[i][j + 1:]
+        return test
+
     # ajoute les contrôles voulus dans le treeView de self.main.dlg_controles
     def add_controls(self, search):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
-        echelle = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-        echelle.setText(0, '%s' % "Grande Échelle")
-        echelle.setFlags(echelle.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-        type = QTreeWidgetItem(echelle)
-        type.setText(0, '%s' % "Contrôles Géométrie")
-        type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-        item = QTreeWidgetItem(type)
-        item.setText(0, '%s' % "rebroussement")
-        item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-        item.setCheckState(0, 2)
-        item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-        item.setText(0, '%s' % "contrôle vide")
-        item.setCheckState(0, 2)
+        for controle in self.main.organisation:
+            path_len= len(controle)
+            if (controle[0] + ".py" in self.main.loaded_controles and "ctrl_" + controle[0] + ".py" in self.main.loaded_controles):
+                temp = self.joli_noms(controle)
+                if (path_len == 1):
+                    item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
+                    item.setText(0, '%s' % temp[0])
+                    item.setCheckState(0, 2)
+                else :
+                    type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
+                    type.setText(0, '%s' % temp[path_len - 1])
+                    type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+                    for i in range(path_len - 2):
+                        sous = QTreeWidgetItem(type)
+                        sous.setText(0, '%s' % controle[i + 1])
+                        sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+                        type = sous
+                    if (path_len - 2 != 0):
+                        item = QTreeWidgetItem(sous)
+                    else:
+                        item = QTreeWidgetItem(type)
+                    item.setText(0, '%s' % temp[0])
+                    item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+                    item.setCheckState(0, 2)
         if search == False:
             self.append_ctrl_to_list()
     

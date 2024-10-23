@@ -109,10 +109,28 @@ class Controles_IGN:
         self.gestion_controles = gestion_controles(self, self.iface, self.iface.mainWindow())
         self.recherche = recherche(self, self.iface, self.iface.mainWindow())
         self.affichage_controles = affichage_controles(self, self.iface, self.iface.mainWindow())
-        self.gestion_controles.add_controls(False)
         self.loaded_controles = []
+        self.sources = []
+        self.organisation = []
         self.dynamic_import_from_src(os.path.dirname(os.path.realpath(__file__)) + "\\controles", False)
-        print(self.loaded_controles)
+        self.get_controls()
+        self.gestion_controles.add_controls(False)
+
+    def get_controls(self):
+        for item in self.sources:
+            controle = []
+            temp = item.split('\\')
+            split_len = len(temp)
+            for i in range(split_len):
+                if (temp[i] == "Contrôles_IGN"):
+                    for j in range(split_len - i):
+                        if (".py" in temp[j + i]):
+                            k = 1
+                            while temp[j + i - k] != "controles":
+                                controle.append(temp[j + i - k])
+                                k = k + 1
+                            if controle not in self.organisation:
+                                self.organisation.append(controle)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -247,13 +265,13 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
-            controle_vide.controle_vide(self, ctrl_controle_vide.controle_vide_ctrl)
+            controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
         if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
-            rebroussement.rebroussement(self, ctrl_rebroussement.rebroussement_ctrl)
+            rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
     
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
         button = QPushButton(widget)
-        button.setText("Montres Moi")
+        button.setText("Montre Moi")
         button.pressed.connect(self.affichage_controles.show_controles)
         widget.layout().addWidget(button)
         self.iface.messageBar().pushWidget(widget, Qgis.Warning, duration=10)
@@ -282,8 +300,8 @@ class Controles_IGN:
         return module
 
     def dynamic_import_from_src(self, src, star_import = False):
-        my_py_files = self.get_py_files(src)
-        for py_file in my_py_files:
+        self.sources = self.get_py_files(src)
+        for py_file in self.sources:
             module_name = os.path.split(py_file)[-1].strip(".py")
             imported_module = self.dynamic_import(module_name, py_file)
             if star_import:

@@ -1,6 +1,6 @@
 # coding=utf-8
 import math
 
-def controle_vide_ctrl(param, data):
+def ctrl_controle_vide(param, data):
     controles = []
     return controles
