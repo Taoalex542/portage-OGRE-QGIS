@@ -88,49 +88,23 @@ class Controles_IGN:
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
-        self.value = 0
-        self.control_list = []
         self.couche_list = []
         self.controles_actifs = 0
         self.controles_restants = 0
         self.couches_actives = 0
         self.controlpoint_layer = None
-        self.provider = None
         self.control_layer_found = False
         self.voir_clicked = False
-        self.clicked_ctrl = None
-        self.row = 0
-        self.date = datetime.today().strftime('%d_%m_%Y')
-        self.controlpoint_layer_name = "controles_IGN_" + self.date
+        self.controlpoint_layer_name = "controles_IGN_" + datetime.today().strftime('%d_%m_%Y')
         self.total_sub_groups = 0
-        self.temp_ctrl_list = []
-        self.temp_couche_list = []
         self.gestion_couches = gestion_couches(self, self.iface, self.iface.mainWindow())
         self.gestion_controles = gestion_controles(self, self.iface, self.iface.mainWindow())
         self.recherche = recherche(self, self.iface, self.iface.mainWindow())
         self.affichage_controles = affichage_controles(self, self.iface, self.iface.mainWindow())
         self.loaded_controles = []
-        self.sources = []
         self.organisation = []
         self.dynamic_import_from_src(os.path.dirname(os.path.realpath(__file__)) + "\\controles", False)
-        self.get_controls()
         self.gestion_controles.add_controls(False)
-
-    def get_controls(self):
-        for item in self.sources:
-            controle = []
-            temp = item.split('\\')
-            split_len = len(temp)
-            for i in range(split_len):
-                if (temp[i] == "Contrôles_IGN"):
-                    for j in range(split_len - i):
-                        if (".py" in temp[j + i]):
-                            k = 1
-                            while temp[j + i - k] != "controles":
-                                controle.append(temp[j + i - k])
-                                k = k + 1
-                            if controle not in self.organisation:
-                                self.organisation.append(controle)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -254,10 +228,12 @@ class Controles_IGN:
     def run_controls(self):
         self.gestion_controles.nb_controles_actifs()
         if (self.controles_actifs <= 0):
+            self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Erreur", "Aucun contrôle séléctionné", level=Qgis.Warning, duration=10)
             return
         self.gestion_couches.get_active_layers()
         if (self.couches_actives <= 0):
+            self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnée", level=Qgis.Warning, duration=10)
             return
         if self.affichage_controles.get_total_controles() != 0:
@@ -274,12 +250,14 @@ class Controles_IGN:
         button.setText("Montre Moi")
         button.pressed.connect(self.affichage_controles.show_controles)
         widget.layout().addWidget(button)
+        self.iface.messageBar().clearWidgets()
         self.iface.messageBar().pushWidget(widget, Qgis.Warning, duration=10)
 
     # coche toutes les cases
     def reset(self):
         self.gestion_controles.check_control_boxes()
         self.gestion_couches.check_layer_boxes()
+        self.iface.messageBar().clearWidgets()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
 
@@ -300,8 +278,8 @@ class Controles_IGN:
         return module
 
     def dynamic_import_from_src(self, src, star_import = False):
-        self.sources = self.get_py_files(src)
-        for py_file in self.sources:
+        sources = self.get_py_files(src)
+        for py_file in sources:
             module_name = os.path.split(py_file)[-1].strip(".py")
             imported_module = self.dynamic_import(module_name, py_file)
             if star_import:
@@ -309,6 +287,20 @@ class Controles_IGN:
                     globals()[obj] = imported_module.__dict__[obj]
             else:
                 globals()[module_name] = imported_module
+        for item in sources:
+            controle = []
+            temp = item.split('\\')
+            split_len = len(temp)
+            for i in range(split_len):
+                if (temp[i] == "Contrôles_IGN"):
+                    for j in range(split_len - i):
+                        if (".py" in temp[j + i]):
+                            k = 1
+                            while temp[j + i - k] != "controles":
+                                controle.append(temp[j + i - k])
+                                k = k + 1
+                            if controle not in self.organisation:
+                                self.organisation.append(controle)
         return
 
 # PARTIE DE LANCEMENT DU CODE
@@ -322,6 +314,7 @@ class Controles_IGN:
         # show the dialog
         if (self.total_sub_groups > 1):
             self.dlg_trop.show()
+            self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("ATTENTION", "Le nombre de sous groupe dépasse la puissance de calcul de QGIS pour faire les contrôles, veulliez diminuer le nombre de sous groupes pour une utilisation fluide du plugin", level=Qgis.Critical)
             return
         self.dlg.show()

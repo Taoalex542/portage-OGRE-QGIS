@@ -13,12 +13,14 @@ class affichage_controles(QDockWidget):
         super(affichage_controles, self).__init__(parent)
         self.iface = iface
         self.main = main
+        self.provider = None
+        self.row = 0
     
     # créé la couche pour les contrôles
     def create_controlpoint_layer(self):
         self.main.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", self.main.controlpoint_layer_name, "memory")
-        self.main.provider = self.main.controlpoint_layer.dataProvider()
-        self.main.provider.addAttributes([QgsField("type", QVariant.String),
+        self.provider = self.main.controlpoint_layer.dataProvider()
+        self.provider.addAttributes([QgsField("type", QVariant.String),
                                     QgsField("libellé",  QVariant.String),
                                     QgsField("couche", QVariant.String),
                                     QgsField("attributs objet", QVariant.List)])
@@ -119,15 +121,15 @@ class affichage_controles(QDockWidget):
         i = 0
         if self.get_total_controles != 0:
             for f in self.main.controlpoint_layer.getFeatures():
-                if i == self.main.row:
+                if i == self.row:
                     list.append(f.geometry())
                 i += 1
             self.main.iface.mapCanvas().flashGeometries(list)
     
     # déplace la caméra et zoome sur l'objet à une échelle de 1:8
     def zoomto(self):
-        self.main.row = self.main.dlg_voir.tableWidget.currentRow()
-        item = self.main.dlg_voir.tableWidget.item(self.main.row, 0)
+        self.row = self.main.dlg_voir.tableWidget.currentRow()
+        item = self.main.dlg_voir.tableWidget.item(self.row, 0)
         canvas = self.main.iface.mapCanvas()
         canvas.zoomScale(768)
         test = ast.literal_eval(item.text())
@@ -137,8 +139,8 @@ class affichage_controles(QDockWidget):
     
     # déplace la "caméra" et gardes le zoom actuel de l'utilisateur, le changement d'échelle est nécéssaire pour mieux centrer le controle
     def moveto(self):
-        self.main.row = self.main.dlg_voir.tableWidget.currentRow()
-        item = self.main.dlg_voir.tableWidget.item(self.main.row, 0)
+        self.row = self.main.dlg_voir.tableWidget.currentRow()
+        item = self.main.dlg_voir.tableWidget.item(self.row, 0)
         canvas = self.main.iface.mapCanvas()
         scale = canvas.scale()
         canvas.zoomScale(768)
@@ -150,11 +152,11 @@ class affichage_controles(QDockWidget):
     # récupère le contrôle choisi et le supprime de la couche ainsi que du tableau
     def suppr_controle(self):
         i = 0
-        self.main.row = self.main.dlg_voir.tableWidget.currentRow()
+        self.row = self.main.dlg_voir.tableWidget.currentRow()
         with edit(self.main.controlpoint_layer):
             for f in self.main.controlpoint_layer.getFeatures():
-                if i == self.main.row:
-                    self.main.dlg_voir.tableWidget.removeRow(self.main.row)
+                if i == self.row:
+                    self.main.dlg_voir.tableWidget.removeRow(self.row)
                     self.main.controlpoint_layer.deleteFeature(f.id())
                     return
                 i += 1

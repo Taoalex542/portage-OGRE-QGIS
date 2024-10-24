@@ -26,6 +26,7 @@ def read(self):
             # si le paramètre est autre chose qu'un chiffre pu un retour à la ligne (\n) il redevient à son état de base et arrète de lire
             for characters in parametres[0]:
                 if ((characters < '0' or characters > '9') and characters != '\n'):
+                    self.iface.messageBar().clearWidgets()
                     self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
                     angle = 10
                     break
@@ -34,12 +35,14 @@ def read(self):
             # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50°)
             if (angle > 50):
                 angle = 10
+                self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
 
             # lis la deuxième ligne (si elle existe) de la même manière que la première
             if line_number >= 2:
                 for characters in parametres[1]:
                     if ((characters < '0' or characters > '9') and characters != '\n' and characters !='.'):
+                        self.iface.messageBar().clearWidgets()
                         self.iface.messageBar().pushMessage("Attention", "paramètre de distance minimale invalide".format(str(filename)), level=Qgis.Critical, duration=10)
                         distance = 0.01
                         break
@@ -54,6 +57,7 @@ def read(self):
         parametres = [angle, distance]
         return parametres
     else:
+        self.iface.messageBar().clearWidgets()
         self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
         return [10, 0.01]
 
@@ -97,6 +101,7 @@ def rebroussement(self, func):
             print("nombre d'objets", quantity)
             if quantity > 0:
                 # informe l'utilisateur le lancement du contrôle
+                self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
                 parametres = read(self)
@@ -152,12 +157,15 @@ def rebroussement(self, func):
                                     temp = []
                                     items_done += 1
                                     if (bar.wasCanceled()):
+                                        self.iface.messageBar().clearWidgets()
                                         self.iface.messageBar().pushMessage("Info", "Contrôle {} annulé".format(str(nom_controle)), level=Qgis.Info, duration=5)
                                         return 1
+                self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Success, duration=5)
                 self.controles_restants += 1
                 return 0
             else:
+                self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
                 self.controles_restants += 1
                 return 2

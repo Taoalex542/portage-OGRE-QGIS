@@ -191,19 +191,18 @@ class gestion_couches(QDockWidget):
         # nettoye le treeView
         for i in self.main.dlg_couches.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         # ajoute les couches dans le treeView
-        if allLayers:
-            for i in allLayers:
-                if(type(i) == qgis._core.QgsLayerTreeLayer):
-                    if i.name() == self.main.controlpoint_layer_name:
-                        self.main.control_layer_found = True
-                        layer = QgsProject.instance().mapLayersByName(self.main.controlpoint_layer_name)[0]
-                        self.controlpoint_layer = layer
-                        continue
-                    azerty = QTreeWidgetItem(self.main.dlg_couches.treeWidget)
-                    azerty.setText(0, '%s' % i.name())
-                    azerty.setCheckState(0, 0)
-                if(type(i) == qgis._core.QgsLayerTreeGroup):
-                    self.set_group_items(i, None)
+        for i in allLayers:
+            if(type(i) == qgis._core.QgsLayerTreeLayer):
+                if i.name() == self.main.controlpoint_layer_name:
+                    self.main.control_layer_found = True
+                    layer = QgsProject.instance().mapLayersByName(self.main.controlpoint_layer_name)[0]
+                    self.controlpoint_layer = layer
+                    continue
+                layer = QTreeWidgetItem(self.main.dlg_couches.treeWidget)
+                layer.setText(0, '%s' % i.name())
+                layer.setCheckState(0, 0)
+            if(type(i) == qgis._core.QgsLayerTreeGroup):
+                self.set_group_items(i, None)
 
         # ajoute les variables dans le treeView dans couche_list
         total = 0
@@ -218,7 +217,6 @@ class gestion_couches(QDockWidget):
                 self.append_for_groups(num_children, signal, total)
             total += 1
         # mets les anciennes variables décochées de nouveau cochées
-        if temp != []:
             for old_item in temp:
                 for new_item in self.main.couche_list:
                     if old_item[0] == new_item[0]:

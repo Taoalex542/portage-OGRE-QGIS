@@ -10,10 +10,11 @@ class gestion_controles(QDockWidget):
         super(gestion_controles, self).__init__(parent)
         self.iface = iface
         self.main = main
+        self.control_list = []
     
     # prépare les boites et remets à létat initial les choix si ils n'ont pas étés validés en appuyant sur ok et affiches la boite de dialogue choix_controles
     def choix_controles(self):
-        for items in self.main.control_list:
+        for items in self.control_list:
             root = self.main.dlg_controles.treeWidget.invisibleRootItem()
             for i in range(root.childCount()):
                 signal = root.child(i)
@@ -25,7 +26,7 @@ class gestion_controles(QDockWidget):
         self.main.dlg_controles.show()
         self.main.dlg_controles.treeWidget.expandAll()
     def global_contrôle_prep(self, num_children, parent):
-        for items in self.main.control_list:
+        for items in self.control_list:
             for i in range(parent.childCount()):
                 child = parent.child(i)
                 num_children = child.childCount()
@@ -37,7 +38,7 @@ class gestion_controles(QDockWidget):
     # mets a jour les checkbox pour les couches
     def update_control_boxes(self):
         root = self.main.dlg_controles.treeWidget.invisibleRootItem()
-        for items in self.main.control_list:
+        for items in self.control_list:
             for i in range(root.childCount()):
                 signal = root.child(i)
                 num_children = signal.childCount()
@@ -46,7 +47,7 @@ class gestion_controles(QDockWidget):
                 if (num_children != 0):
                     self.update_control_boxes2(num_children, signal)
     def update_control_boxes2(self, num_children, parent):
-        for items in self.main.control_list:
+        for items in self.control_list:
             for i in range(parent.childCount()):
                 child = parent.child(i)
                 num_children = child.childCount()
@@ -86,7 +87,7 @@ class gestion_controles(QDockWidget):
             if (num_children != 0):
                 self.append_ctrl_2(num_children, signal, total)
             else:
-                self.main.control_list.append([signal.text(0), total, signal.checkState(0)])
+                self.control_list.append([signal.text(0), total, signal.checkState(0)])
                 total += 1
     def append_ctrl_2(self, num_children, parent, total):
         for i in range(parent.childCount()):
@@ -95,7 +96,7 @@ class gestion_controles(QDockWidget):
             if num_children != 0:
                 self.append_ctrl_2(num_children, child, total)
             else:
-                self.main.control_list.append([child.text(0), total, child.checkState(0)])
+                self.control_list.append([child.text(0), total, child.checkState(0)])
                 total += 1
 
     def joli_noms(self, controle):
@@ -139,7 +140,7 @@ class gestion_controles(QDockWidget):
     #renvoie le nombre de controles actifs dans la liste
     def nb_controles_actifs(self):
         self.main.controles_actifs = 0
-        for items in self.main.control_list:
+        for items in self.control_list:
             if items[2] == QtCore.Qt.Checked:
                 self.main.controles_actifs += 1
         self.main.controles_restants = 1
