@@ -115,7 +115,7 @@ class affichage_controles(QDockWidget):
         else:
             self.main.dlg_pas.show()
     
-    # fait clignoter tous les objets contrôles
+    # fait clignoter le dernier contrôle séléctionné
     def clignoter(self):
         list = []
         i = 0

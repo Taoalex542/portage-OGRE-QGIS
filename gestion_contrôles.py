@@ -99,6 +99,8 @@ class gestion_controles(QDockWidget):
                 self.control_list.append([child.text(0), total, child.checkState(0)])
                 total += 1
 
+    # changes les '_' en ' ' pour l'affichage
+    # ex: controle_test => controle test
     def joli_noms(self, controle):
         test = controle.copy()
         for i in range(len(test)):
@@ -112,9 +114,9 @@ class gestion_controles(QDockWidget):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
             path_len= len(controle)
-            if (controle[0] + ".py" in self.main.loaded_controles and "ctrl_" + controle[0] + ".py" in self.main.loaded_controles):
+            if (controle[0] + ".py" in self.main.loaded_controles and "ctrl_" + controle[0] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
                 temp = self.joli_noms(controle)
-                if (path_len == 1):
+                if (path_len == 1): #si le controle est à la racine
                     item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
                     item.setText(0, '%s' % temp[0])
                     item.setCheckState(0, 2)
@@ -122,7 +124,7 @@ class gestion_controles(QDockWidget):
                     type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
                     type.setText(0, '%s' % temp[path_len - 1])
                     type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-                    for i in range(path_len - 2):
+                    for i in range(path_len - 2): #si il y a plus de 1 dossier parent, passes dans la boucle
                         sous = QTreeWidgetItem(type)
                         sous.setText(0, '%s' % controle[i + 1])
                         sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)

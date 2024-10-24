@@ -87,6 +87,7 @@ class Controles_IGN:
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
+        # initialisation de toutes les données utilisées
         self.first_start = None
         self.couche_list = []
         self.controles_actifs = 0
@@ -224,7 +225,8 @@ class Controles_IGN:
             self.iface.removeToolBarIcon(action)
 
 
-# PARTIE GLOBALE
+# PARTIE PLUGIN
+    # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles
     def run_controls(self):
         self.gestion_controles.nb_controles_actifs()
         if (self.controles_actifs <= 0):
@@ -236,15 +238,18 @@ class Controles_IGN:
             self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnée", level=Qgis.Warning, duration=10)
             return
+        #supprime la couche des contrôles si ell existe
         if self.affichage_controles.get_total_controles() != 0:
             qinst = QgsProject.instance()
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
+        # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "controle_vide" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
             controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
         if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
             rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
-    
+
+        # informe l'utilisateur que les contrôles sont terminés
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
         button = QPushButton(widget)
         button.setText("Montre Moi")
@@ -261,6 +266,7 @@ class Controles_IGN:
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
 
 
+    # récupère tous les fichiers pythons présents dans la source donnée
     def get_py_files(self, src):
         cwd = os.getcwd() # Current Working directory
         py_files = [] 
@@ -271,12 +277,14 @@ class Controles_IGN:
                     py_files.append(os.path.join(cwd, root, file))
         return py_files
 
+    # importe les fichiers python présents dans une liste
     def dynamic_import(self, module_name, py_path):
         module_spec = importlib.util.spec_from_file_location(module_name, py_path)
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         return module
 
+    # importes tous les fichiers python présents dans le dossier controle 
     def dynamic_import_from_src(self, src, star_import = False):
         sources = self.get_py_files(src)
         for py_file in sources:
@@ -287,6 +295,7 @@ class Controles_IGN:
                     globals()[obj] = imported_module.__dict__[obj]
             else:
                 globals()[module_name] = imported_module
+        # ajoute les controles ainsi que leurs dossier parents jusqu'à "controles" dans une liste ajoutée à self.organisation
         for item in sources:
             controle = []
             temp = item.split('\\')
