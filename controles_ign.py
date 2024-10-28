@@ -248,6 +248,9 @@ class Controles_IGN:
             controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
         if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
             rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
+        if ("auto_intersection.py" in self.loaded_controles and "ctrl_auto_intersection.py" in self.loaded_controles):
+            auto_intersection.auto_intersection(self, ctrl_auto_intersection.ctrl_auto_intersection) #type: ignore
+
 
         # informe l'utilisateur que les contrôles sont terminés
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
@@ -296,20 +299,26 @@ class Controles_IGN:
             else:
                 globals()[module_name] = imported_module
         # ajoute les controles ainsi que leurs dossier parents jusqu'à "controles" dans une liste ajoutée à self.organisation
+        val = 0
         for item in sources:
             controle = []
-            temp = item.split('\\')
-            split_len = len(temp)
-            for i in range(split_len):
-                if (temp[i] == "Contrôles_IGN"):
-                    for j in range(split_len - i):
-                        if (".py" in temp[j + i]):
-                            k = 1
-                            while temp[j + i - k] != "controles":
-                                controle.append(temp[j + i - k])
-                                k = k + 1
-                            if controle not in self.organisation:
-                                self.organisation.append(controle)
+            if ("ctrl" not in item):
+                f = open(item)
+                controle.append(f.readline())
+                f.close()
+                temp = item.split('\\')
+                split_len = len(temp)
+                for i in range(split_len):
+                    if (temp[i] == "Contrôles_IGN"):
+                        for j in range(split_len - i):
+                            if (".py" in temp[j + i]):
+                                k = 1
+                                
+                                while temp[j + i - k] != "controles":
+                                    controle.append(temp[j + i - k])
+                                    k = k + 1
+                                if controle not in self.organisation:
+                                    self.organisation.append(controle)
         return
 
 # PARTIE DE LANCEMENT DU CODE

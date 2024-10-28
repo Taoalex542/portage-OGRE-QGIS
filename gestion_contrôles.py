@@ -113,28 +113,31 @@ class gestion_controles(QDockWidget):
     def add_controls(self, search):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
-            path_len= len(controle)
-            if (controle[0] + ".py" in self.main.loaded_controles and "ctrl_" + controle[0] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
+            path_len = len(controle)
+            if (controle[1] + ".py" in self.main.loaded_controles and "ctrl_" + controle[1] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
                 temp = self.joli_noms(controle)
-                if (path_len == 1): #si le controle est à la racine
+                if (path_len == 2): #si le controle est à la racine
                     item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-                    item.setText(0, '%s' % temp[0])
+                    item.setText(0, '%s' % temp[1])
                     item.setCheckState(0, 2)
                 else :
                     type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
                     type.setText(0, '%s' % temp[path_len - 1])
                     type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-                    for i in range(path_len - 2): #si il y a plus de 1 dossier parent, passes dans la boucle
+                    for i in range(path_len - 3): #si il y a plus de 1 dossier parent, passes dans la boucle
                         sous = QTreeWidgetItem(type)
                         sous.setText(0, '%s' % controle[i + 1])
                         sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
                         type = sous
-                    if (path_len - 2 != 0):
+                    if (path_len - 3 != 0):
                         item = QTreeWidgetItem(sous)
                     else:
                         item = QTreeWidgetItem(type)
-                    item.setText(0, '%s' % temp[0])
+                    item.setText(0, '%s' % temp[1])
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+                if (controle[0] == "#0\n"):
+                    item.setCheckState(0, 0)
+                else:
                     item.setCheckState(0, 2)
         if search == False:
             self.append_ctrl_to_list()
