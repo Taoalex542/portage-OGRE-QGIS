@@ -1,15 +1,22 @@
 # coding=utf-8
-import math
+
+def get_holes_in_shape(data, len_data):
+    hist = []
+    start_points = []
+    for i in range (len_data):
+        if data[i] not in hist:
+            hist.append(data[i])
+        else:
+            start_points.append(data[i])
+    return start_points
 
 def ctrl_controle_vide(param, data, otherdata):
     controles = []
+    start_points = get_holes_in_shape(otherdata, len(otherdata) - 1)
     for i in range(len(data) - 1):
         for j in range(len(otherdata) - 1):
             point = seg_intersect(data[i],data[i + 1], otherdata[j], otherdata[j + 1])
-            if (point != None):
-                print(data[i],data[i + 1], otherdata[j], otherdata[j + 1])
-                print("main= ",data)
-                print("second= ",otherdata)
+            if (point != None and point not in controles and data[i] not in start_points and data[i + 1] not in start_points and data[j] not in start_points and data[j + 1] not in start_points):
                 controles.append(point)
     return controles
 
@@ -35,7 +42,3 @@ def seg_intersect(p1, p2, p3, p4):
         or p2[0] == p3[0] and p3[1] == p2[1]):
         return None
     return (x,y)
-
-# (934352.3, 6849376.6, -1000.0) (934352.1, 6849364.0, -1000.0) (934346.3, 6849365.9, 199.3) (934357.5, 6849365.5, 199.2)
-# main=  ((934352.3, 6849376.6, -1000.0), (934352.1, 6849364.0, -1000.0))
-# second=  ((934222.9, 6849378.5, 200.0), (934232.2, 6849375.7, 200.1), (934248.9, 6849371.8, 199.7), (934265.4, 6849369.3, 199.5), (934290.3, 6849368.2, 199.4), (934297.5, 6849367.9, 199.4), (934320.5, 6849367.2, 199.4), (934327.4, 6849367.0, 199.5), (934346.3, 6849365.9, 199.3), (934357.5, 6849365.5, 199.2), (934402.2, 6849362.7, 198.7), (934409.6, 6849322.3, 198.0), (934411.2, 6849313.3, 197.9))

@@ -122,10 +122,12 @@ def auto_intersection(self, func):
                                     #     QgsCoordinateReferenceSystem("EPSG:2154"),
                                     #     QgsProject.instance()))
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
+                                    print(part.asWkt())
+                                    return
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    temp = func(parametres[0], coords, layers.name())
+                                    temp = func(parametres, coords)
                                     if temp != []:
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()

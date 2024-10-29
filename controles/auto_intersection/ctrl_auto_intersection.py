@@ -1,5 +1,4 @@
 # coding=utf-8
-import math
 
 def get_holes_in_shape(data, len_data):
     hist = []
@@ -11,7 +10,7 @@ def get_holes_in_shape(data, len_data):
             start_points.append(data[i])
     return start_points
 
-def ctrl_auto_intersection(param, data, name):
+def ctrl_auto_intersection(param, data):
     controles = []
     len_data = len(data) - 1
     start_points = get_holes_in_shape(data, len_data)

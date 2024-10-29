@@ -244,12 +244,14 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "controle_vide" avec le controle voulu pour ajouter le controle dans les lancements)
-        if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
-            controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
-        if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
-            rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
-        if ("auto_intersection.py" in self.loaded_controles and "ctrl_auto_intersection.py" in self.loaded_controles):
-            auto_intersection.auto_intersection(self, ctrl_auto_intersection.ctrl_auto_intersection) #type: ignore
+        # if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
+        #     controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
+        # if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
+        #     rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
+        # if ("auto_intersection.py" in self.loaded_controles and "ctrl_auto_intersection.py" in self.loaded_controles):
+        #     auto_intersection.auto_intersection(self, ctrl_auto_intersection.ctrl_auto_intersection) #type: ignore
+        if ("attributs.py" in self.loaded_controles and "ctrl_attributs.py" in self.loaded_controles):
+            attributs.attributs(self, ctrl_attributs.ctrl_attributs) #type: ignore
 
 
         # informe l'utilisateur que les contrôles sont terminés
