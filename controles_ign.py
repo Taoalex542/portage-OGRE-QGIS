@@ -243,6 +243,7 @@ class Controles_IGN:
             qinst = QgsProject.instance()
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
+        self.controles_restants = 1
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "controle_vide" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
             controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
