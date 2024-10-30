@@ -21,44 +21,8 @@ def read(self):
         f.close()
 
         if line_number >= 1:
-            # lis la première ligne pour le paramètre de l'angle contenu dans paramètre[0]
-            # si le paramètre est autre chose qu'un chiffre pu un retour à la ligne (\n) il redevient à son état de base et arrète de lire
-            for characters in parametres[0]:
-                if ((characters < '0' or characters > '9') and characters != '\n'):
-                    self.iface.messageBar().clearWidgets()
-                    self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
-                    angle = 10
-                    break
-            if (angle == 0):
-                angle = int(parametres[0])
-            # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50°)
-            if (angle > 50):
-                angle = 10
-                self.iface.messageBar().clearWidgets()
-                self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
-
-            # lis la deuxième ligne (si elle existe) de la même manière que la première
-            if line_number >= 2:
-                for characters in parametres[1]:
-                    if ((characters < '0' or characters > '9') and characters != '\n' and characters !='.'):
-                        self.iface.messageBar().clearWidgets()
-                        self.iface.messageBar().pushMessage("Attention", "paramètre de distance minimale invalide".format(str(filename)), level=Qgis.Critical, duration=10)
-                        distance = 0.01
-                        break
-                if (distance == 0):
-                    distance = float(parametres[1])
-            else:
-                distance = 0.01
-        else:
-            angle = 10
-            distance = 0.01
-        
-        parametres = [angle, distance]
-        return parametres
-    else:
-        self.iface.messageBar().clearWidgets()
-        self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
-        return [10, 0.01]
+            return[]
+        return [0]
 
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self):
@@ -88,10 +52,6 @@ def nb_for_tuple(self, str):
 # execution du controle
 def controle_vide(self, func):
     nom_controle = "contrôle vide"
-    # objets_controle = ["limite_administrative", "ligne_frontalière", "tronçon_hydrographique", "limite_terre_mer"
-    #            , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
-    #            , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
-    #            , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
     for item in self.dlg_controles.treeWidget.findItems("controle vide", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "contrôle vide" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -121,20 +81,13 @@ def controle_vide(self, func):
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
-                                # print('Area :', geom.area())
-                                # print('Perimeter :', geom.length())
-                                # print('Type :', QgsWkbTypes.displayString(geom.wkbType()))
+
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès
                                     if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):
                                         break
                                     bar.setValue(int(items_done / quantity * 100))
-                                    # mets comme type de données l'ESPG 2154
-                                    # part.transform(QgsCoordinateTransform(
-                                    #     QgsCoordinateReferenceSystem("IGNF:LAMB93"),
-                                    #     QgsCoordinateReferenceSystem("EPSG:2154"),
-                                    #     QgsProject.instance()))
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement

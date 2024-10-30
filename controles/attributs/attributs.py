@@ -45,7 +45,6 @@ def get_value_pos(param, names):
     if param == None:
         return nb
     for name in names:
-        print(name)
         if param == name:
             return nb
         nb += 1
@@ -65,6 +64,7 @@ def nb_for_tuple(self, str):
 # execution du controle
 def attributs(self, func):
     nom_controle = "attributs"
+    done = []
     for item in self.dlg_controles.treeWidget.findItems("attributs", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "attributs" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -83,7 +83,6 @@ def attributs(self, func):
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
                 allLayers = QgsProject.instance().mapLayers().values()
-                prev = []
                 # parcours des couches
                 for layers in allLayers:
                     # parcours la liste actuelle des couches
@@ -104,16 +103,20 @@ def attributs(self, func):
                                         othergeom = otherf.geometry()
                                         for otherpart in othergeom.parts():
                                             othercoords = tuple(zip(*[map(float, re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherpart.centroid().asWkt()))] * nb_for_tuple(self, otherpart.centroid().asWkt())))
-                                            temp = func(attributs[pos], other_attributs[pos], f.id(), otherf.id(), coords, othercoords)
+                                            temp = func(attributs[pos], other_attributs[pos], f.id(), otherf.id(), coords[0], othercoords[0])
                                             if temp != []:
                                                 if self.control_layer_found == False:
                                                     self.affichage_controles.create_controlpoint_layer()
                                                 for controles in temp:
+                                                    if (controles in done):
+                                                        break
+                                                    done.append(controles)
                                                     with edit(self.controlpoint_layer):
                                                         test = []
                                                         test.append(attributs)
                                                         test.append(layers.fields().names())
                                                         ctrl = QgsFeature()
+                                                        print(controles)
                                                         ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
                                                         ctrl.setAttributes(["Géométrie", "objet d'identifient {} sur la couche {} possède le même attribut que l'objet avec l'identifiant {}".format(f.id(), layers.name(), otherf.id()), layers.name(), test])
                                                         self.controlpoint_layer.dataProvider().addFeature(ctrl)
