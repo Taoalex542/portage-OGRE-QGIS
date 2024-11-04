@@ -1,5 +1,6 @@
 # coding=utf-8
 
+# récupère les points pour la gestion des trous dans QGIS pour éviter les segments non existants entre les différentes géométries
 def get_holes_in_shape(data, len_data):
     hist = []
     start_points = []
@@ -20,6 +21,7 @@ def ctrl_controle_vide(param, data, otherdata):
                 controles.append(point)
     return controles
 
+# calcul mathématique pour vérifier si une intersection existe entre deux segments 
 def seg_intersect(p1, p2, p3, p4):
     x1,y1 = p1[0],p1[1]
     x2,y2 = p2[0],p2[1]

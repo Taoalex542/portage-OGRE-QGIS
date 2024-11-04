@@ -44,9 +44,11 @@ class recherche(QDockWidget):
                     child.setCheckState(0, items[1])
                 if num_children != 0:
                     self.search_update_couche_groups(num_children, child)
-                    
+    
+    # fonction principale de la recherche 
     def search_couche(self):
         root = self.main.dlg_couches.treeWidget.invisibleRootItem()
+        # récupère le statut de tous les objets cochables
         for i in range(root.childCount()):
             signal = root.child(i)
             num_children = signal.childCount()
@@ -58,6 +60,8 @@ class recherche(QDockWidget):
                 else:
                     self.search_update_couche_status(signal.text(0), signal.checkState(0))
         for i in self.main.dlg_couches.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
+        
+        # si le texte est vide, affiche l'arbre de choix normalement
         if self.main.dlg_couches.lineEdit.text() == "":
             self.main.gestion_couches.add_layers()
             for items in self.temp_couche_list:
@@ -69,6 +73,8 @@ class recherche(QDockWidget):
                         signal.setCheckState(0, items[1])
                     if (num_children != 0):
                         self.search_update_couche_groups(num_children, signal)
+
+        # sinon affiche seulement les objets commencant par la recherche
         else:
             self.main.dlg_couches.treeWidget.setHeaderHidden(True)
             for items in self.temp_couche_list:
@@ -108,9 +114,11 @@ class recherche(QDockWidget):
                     child.setCheckState(0, items[1])
                 if num_children != 0:
                     self.search_update_groups(num_children, child)
-                    
+    
+    # fonction principale de la recherche 
     def search_control(self):
         root = self.main.dlg_controles.treeWidget.invisibleRootItem()
+        # récupère le statut de tous les objets cochables
         for i in range(root.childCount()):
             signal = root.child(i)
             num_children = signal.childCount()
@@ -122,6 +130,8 @@ class recherche(QDockWidget):
                 else:
                     self.search_update_status(signal.text(0), signal.checkState(0))
         for i in self.main.dlg_controles.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
+        
+        # si le texte est vide, affiche l'arbre de choix normalement
         if self.main.dlg_controles.lineEdit.text() == "":
             self.main.gestion_controles.add_controls(True)
             for items in self.temp_ctrl_list:
@@ -133,6 +143,8 @@ class recherche(QDockWidget):
                         signal.setCheckState(0, items[1])
                     if (num_children != 0):
                         self.search_update_groups(num_children, signal)
+                        
+        # sinon affiche seulement les objets commencant par la recherche
         else:
             self.main.dlg_controles.treeWidget.setHeaderHidden(True)
             for items in self.temp_ctrl_list:
