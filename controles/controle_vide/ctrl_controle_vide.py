@@ -17,7 +17,7 @@ def ctrl_controle_vide(param, data, otherdata):
     for i in range(len(data) - 1):
         for j in range(len(otherdata) - 1):
             point = seg_intersect(data[i],data[i + 1], otherdata[j], otherdata[j + 1])
-            if (point != None and point not in controles and data[i] not in start_points and data[i + 1] not in start_points and data[j] not in start_points and data[j + 1] not in start_points):
+            if (point != None and point not in controles and data[i] not in start_points and data[i + 1] not in start_points and otherdata[j] not in start_points and otherdata[j + 1] not in start_points):
                 controles.append(point)
     return controles
 

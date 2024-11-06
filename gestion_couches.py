@@ -64,6 +64,11 @@ class gestion_couches(QDockWidget):
 
     # mets a jour les checkbox pour les couches
     def update_layer_boxes(self):
+        print(self.main.couche_list)
+        temp = self.main.dlg_couches.lineEdit.text()
+        if (temp != ""):
+            self.main.dlg_couches.lineEdit.setText("")
+            self.main.recherche.search_couche()
         root = self.main.dlg_couches.treeWidget.invisibleRootItem()
         for items in self.main.couche_list:
             for i in range(root.childCount()):
@@ -73,6 +78,9 @@ class gestion_couches(QDockWidget):
                     items[2] = signal.checkState(0)
                 if (num_children != 0):
                     self.update_layer_boxes2(num_children, signal)
+        print(self.main.couche_list)
+        self.main.dlg_couches.lineEdit.setText(temp)
+        self.main.recherche.search_couche()
     def update_layer_boxes2(self, num_children, parent):
         for items in self.main.couche_list:
             for i in range(parent.childCount()):
@@ -230,3 +238,5 @@ class gestion_couches(QDockWidget):
                     signal.setCheckState(0, items[2])
                 if (num_children != 0):
                     self.check_groups(num_children, signal)
+        if self.main.dlg_couches.lineEdit.text() != "":
+            self.main.recherche.search_couche()

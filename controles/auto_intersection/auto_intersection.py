@@ -86,7 +86,7 @@ def auto_intersection(self, func):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
@@ -107,7 +107,7 @@ def auto_intersection(self, func):
                                     # mets a jour le progrès de la bar de progrès
                                     if ("LineString" not in QgsWkbTypes.displayString(part.wkbType()) and "Polygon" not in QgsWkbTypes.displayString(part.wkbType())):
                                         break
-                                    bar.setValue(int(items_done / quantity * 100))
+                                    bar.setValue(items_done)
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
@@ -130,6 +130,7 @@ def auto_intersection(self, func):
                                     items_done += 1
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().clearWidgets()
+                                        self.controles_restants += 1
                                         self.iface.messageBar().pushMessage("Info", "Contrôle {} annulé".format(str(nom_controle)), level=Qgis.Info, duration=5)
                                         return 1
                 self.iface.messageBar().clearWidgets()

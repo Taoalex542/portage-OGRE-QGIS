@@ -78,7 +78,7 @@ def attributs(self, func):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
@@ -89,25 +89,26 @@ def attributs(self, func):
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
+                            pos = get_value_pos(parametres, layers.fields().names())
                             # récupère les informations des couches
                             for f in layers.getFeatures():
                                 # mets a jour le progrès de la bar de progrès
                                 geom = f.geometry()
                                 for part in geom.parts():
                                     attributs = f.attributes()
-                                    bar.setValue(int(items_done / quantity * 100))
-                                    pos = get_value_pos(parametres, layers.fields().names())
-                                    coords = tuple(zip(*[map(float, re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.centroid().asWkt()))] * nb_for_tuple(self, part.centroid().asWkt())))
+                                    bar.setValue(int(items_done))
                                     for otherf in layers.getFeatures():
                                         other_attributs = otherf.attributes()
                                         othergeom = otherf.geometry()
                                         for otherpart in othergeom.parts():
-                                            othercoords = tuple(zip(*[map(float, re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherpart.centroid().asWkt()))] * nb_for_tuple(self, otherpart.centroid().asWkt())))
-                                            temp = func(attributs[pos], other_attributs[pos], f.id(), otherf.id(), coords[0], othercoords[0])
-                                            if temp != []:
+                                            temp = func(attributs[pos], other_attributs[pos], f.id(), otherf.id())
+                                            if temp == True:
                                                 if self.control_layer_found == False:
                                                     self.affichage_controles.create_controlpoint_layer()
-                                                for controles in temp:
+                                                coords = tuple(zip(*[map(float, re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.centroid().asWkt()))] * nb_for_tuple(self, part.centroid().asWkt())))
+                                                othercoords = tuple(zip(*[map(float, re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherpart.centroid().asWkt()))] * nb_for_tuple(self, otherpart.centroid().asWkt())))
+                                                locations = [coords[0], othercoords[0]]
+                                                for controles in locations:
                                                     if (controles in done):
                                                         break
                                                     done.append(controles)
@@ -116,15 +117,15 @@ def attributs(self, func):
                                                         test.append(attributs)
                                                         test.append(layers.fields().names())
                                                         ctrl = QgsFeature()
-                                                        print(controles)
                                                         ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
                                                         ctrl.setAttributes(["Géométrie", "objet d'identifient {} sur la couche {} possède le même attribut que l'objet avec l'identifiant {}".format(f.id(), layers.name(), otherf.id()), layers.name(), test])
                                                         self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                         self.controlpoint_layer.updateExtents()
-                                            temp = []
+                                            temp = False
                                     items_done += 1
                                 if (bar.wasCanceled()):
                                     self.iface.messageBar().clearWidgets()
+                                    self.controles_restants += 1
                                     self.iface.messageBar().pushMessage("Info", "Contrôle {} annulé".format(str(nom_controle)), level=Qgis.Info, duration=5)
                                     return 1
                 self.iface.messageBar().clearWidgets()

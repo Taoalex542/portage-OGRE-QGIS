@@ -21,7 +21,7 @@ def read(self):
         f.close()
 
         if line_number >= 1:
-            return[]
+            return parametres
         return [0]
 
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
@@ -65,7 +65,7 @@ def controle_vide(self, func):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
@@ -76,18 +76,17 @@ def controle_vide(self, func):
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
+                            print(layers.name())
                             # récupère les informations des couches
-                            # print(layers.fields().names())
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
-
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès
                                     if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):
                                         break
-                                    bar.setValue(int(items_done / quantity * 100))
+                                    bar.setValue(items_done)
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
@@ -111,13 +110,14 @@ def controle_vide(self, func):
                                                             test.append(layers.fields().names())
                                                             ctrl = QgsFeature()
                                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                            ctrl.setAttributes(["Géométrie", "contrôle vide", layers.name(), test])
+                                                            ctrl.setAttributes(["Géométrie", "{} identifiant {} inersecte avec {} identifiant {}".format(layers.name(), f.id(), otherLayers.name(), otherf.id()), layers.name(), test])
                                                             self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                             self.controlpoint_layer.updateExtents()
                                                 temp = []
                                     items_done += 1
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().clearWidgets()
+                                        self.controles_restants += 1
                                         self.iface.messageBar().pushMessage("Info", "Contrôle {} annulé".format(str(nom_controle)), level=Qgis.Info, duration=5)
                                         return 1
                 self.iface.messageBar().clearWidgets()

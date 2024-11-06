@@ -38,6 +38,10 @@ class gestion_controles(QDockWidget):
     # mets a jour les checkbox pour les couches
     def update_control_boxes(self):
         root = self.main.dlg_controles.treeWidget.invisibleRootItem()
+        temp = self.main.dlg_controles.lineEdit.text()
+        if (temp != ""):
+            self.main.dlg_controles.lineEdit.setText("")
+            self.main.recherche.search_controles()
         for items in self.control_list:
             for i in range(root.childCount()):
                 signal = root.child(i)
@@ -46,6 +50,8 @@ class gestion_controles(QDockWidget):
                     items[2] = signal.checkState(0)
                 if (num_children != 0):
                     self.update_control_boxes2(num_children, signal)
+        self.main.dlg_controles.lineEdit.setText(temp)
+        self.main.recherche.search_controles()
     def update_control_boxes2(self, num_children, parent):
         for items in self.control_list:
             for i in range(parent.childCount()):
@@ -141,6 +147,8 @@ class gestion_controles(QDockWidget):
                     item.setCheckState(0, 2)
         if search == False:
             self.append_ctrl_to_list()
+        if self.main.dlg_controles.lineEdit.text() != "":
+            self.main.recherche.search_controles()
     
     #renvoie le nombre de controles actifs dans la liste
     def nb_controles_actifs(self):

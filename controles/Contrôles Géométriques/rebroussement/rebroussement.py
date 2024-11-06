@@ -106,7 +106,7 @@ def rebroussement(self, func):
                 # récupère les paramètres si possible
                 parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, 100)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis
@@ -130,7 +130,7 @@ def rebroussement(self, func):
                                     # mets a jour le progrès de la bar de progrès
                                     if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):
                                         break
-                                    bar.setValue(int(items_done / quantity * 100))
+                                    bar.setValue(items_done)
                                     # mets comme type de données l'ESPG 2154
                                     # part.transform(QgsCoordinateTransform(
                                     #     QgsCoordinateReferenceSystem("IGNF:LAMB93"),
@@ -158,6 +158,7 @@ def rebroussement(self, func):
                                     items_done += 1
                                     if (bar.wasCanceled()):
                                         self.iface.messageBar().clearWidgets()
+                                        self.controles_restants += 1
                                         self.iface.messageBar().pushMessage("Info", "Contrôle {} annulé".format(str(nom_controle)), level=Qgis.Info, duration=5)
                                         return 1
                 self.iface.messageBar().clearWidgets()
