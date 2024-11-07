@@ -119,6 +119,7 @@ class gestion_controles(QDockWidget):
     def add_controls(self, search):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
+            print(controle)
             path_len = len(controle)
             if (controle[1] + ".py" in self.main.loaded_controles and "ctrl_" + controle[1] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
                 temp = self.joli_noms(controle)
@@ -135,9 +136,13 @@ class gestion_controles(QDockWidget):
                         type.setText(0, '%s' % temp[path_len - 1])
                         type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
                     for i in range(path_len - 3): #si il y a plus de 1 dossier parent, passes dans la boucle
-                        sous = QTreeWidgetItem(type)
-                        sous.setText(0, '%s' % controle[i + 1])
-                        sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+                        soustype = self.main.dlg_controles.treeWidget.findItems(controle[path_len - 2 - i], QtCore.Qt.MatchRecursive)
+                        if soustype != []:
+                            sous = soustype[0]
+                        else:
+                            sous = QTreeWidgetItem(type)
+                            sous.setText(0, '%s' % controle[path_len - 2 - i])
+                            sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
                         type = sous
                     if (path_len - 3 != 0):
                         item = QTreeWidgetItem(sous)
