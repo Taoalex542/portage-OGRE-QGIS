@@ -93,7 +93,7 @@ def rebroussement(self, func):
     #            , "histolitt", "ligne_électrique", "canalisation", "construction_linéaire", "ligne_orographique"
     #            , "troncon_de_route", "densification_des_chemins", "tronçon_de_voie_ferrée", "transport_par_câble", "voie_de_triage"
     #            , "itinéraire_ski_de_randonnée", "haie", "ligne_caractéristique", "limites_diverses", "modification_d_attribut"]
-    for item in self.dlg_controles.treeWidget.findItems("rebroussement", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
+    for item in self.dlg_controles.treeWidget.findItems("rebroussement", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0

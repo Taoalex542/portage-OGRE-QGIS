@@ -73,7 +73,7 @@ def nb_for_tuple(self, str):
 # execution du controle
 def auto_intersection(self, func):
     nom_controle = "auto intersection"
-    for item in self.dlg_controles.treeWidget.findItems("auto intersection", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
+    for item in self.dlg_controles.treeWidget.findItems("auto intersection", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "auto_intersection" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0

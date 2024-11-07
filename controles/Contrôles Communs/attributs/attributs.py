@@ -65,7 +65,7 @@ def nb_for_tuple(self, str):
 def attributs(self, func):
     nom_controle = "attributs"
     done = []
-    for item in self.dlg_controles.treeWidget.findItems("attributs", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
+    for item in self.dlg_controles.treeWidget.findItems("attributs", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "attributs" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0
@@ -98,6 +98,8 @@ def attributs(self, func):
                                     attributs = f.attributes()
                                     bar.setValue(int(items_done))
                                     for otherf in layers.getFeatures():
+                                        if otherf.id() < items_done:
+                                            continue
                                         other_attributs = otherf.attributes()
                                         othergeom = otherf.geometry()
                                         for otherpart in othergeom.parts():

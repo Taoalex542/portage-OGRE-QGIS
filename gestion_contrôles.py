@@ -51,7 +51,7 @@ class gestion_controles(QDockWidget):
                 if (num_children != 0):
                     self.update_control_boxes2(num_children, signal)
         self.main.dlg_controles.lineEdit.setText(temp)
-        self.main.recherche.search_controles()
+        self.main.recherche.search_control()
     def update_control_boxes2(self, num_children, parent):
         for items in self.control_list:
             for i in range(parent.childCount()):
@@ -119,7 +119,6 @@ class gestion_controles(QDockWidget):
     def add_controls(self, search):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
-            print(controle)
             path_len = len(controle)
             if (controle[1] + ".py" in self.main.loaded_controles and "ctrl_" + controle[1] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
                 temp = self.joli_noms(controle)

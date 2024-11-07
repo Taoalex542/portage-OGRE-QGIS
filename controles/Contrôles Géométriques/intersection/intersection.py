@@ -51,9 +51,9 @@ def nb_for_tuple(self, str):
 
 # execution du controle
 def intersection(self, func):
-    nom_controle = "contrôle vide"
-    for item in self.dlg_controles.treeWidget.findItems("intersection", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
-        # vérifie si le contrôle "contrôle vide" est coché et si il existe des objets de type Ligne
+    nom_controle = "intersection"
+    for item in self.dlg_controles.treeWidget.findItems("intersection", QtCore.Qt.MatchRecursive):
+        # vérifie si le contrôle "intersection" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0
             quantity = get_quantity(self)
@@ -76,7 +76,6 @@ def intersection(self, func):
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
-                            print(layers.name())
                             # récupère les informations des couches
                             for f in layers.getFeatures():
                                 # récupère la géométrie dans ces infos
