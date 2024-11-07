@@ -127,9 +127,13 @@ class gestion_controles(QDockWidget):
                     item.setText(0, '%s' % temp[1])
                     item.setCheckState(0, 2)
                 else :
-                    type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-                    type.setText(0, '%s' % temp[path_len - 1])
-                    type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+                    category = self.main.dlg_controles.treeWidget.findItems(controle[path_len - 1], QtCore.Qt.MatchRecursive)
+                    if category != []:
+                        type = category[0]
+                    else:
+                        type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
+                        type.setText(0, '%s' % temp[path_len - 1])
+                        type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
                     for i in range(path_len - 3): #si il y a plus de 1 dossier parent, passes dans la boucle
                         sous = QTreeWidgetItem(type)
                         sous.setText(0, '%s' % controle[i + 1])

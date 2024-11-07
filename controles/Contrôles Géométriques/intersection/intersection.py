@@ -50,9 +50,9 @@ def nb_for_tuple(self, str):
     return nb
 
 # execution du controle
-def controle_vide(self, func):
+def intersection(self, func):
     nom_controle = "contrôle vide"
-    for item in self.dlg_controles.treeWidget.findItems("controle vide", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
+    for item in self.dlg_controles.treeWidget.findItems("intersection", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "contrôle vide" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0

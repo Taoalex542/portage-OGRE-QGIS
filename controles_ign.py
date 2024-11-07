@@ -37,8 +37,6 @@ from .resources import *
 # Import the code for the dialog
 from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches
 import os.path
-# from .controles.rebroussement.rerboussement import rebroussement
-# from .controles.controle_vide.controle_vide import controle_vide
 
 
 class Controles_IGN:
@@ -244,9 +242,9 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         self.controles_restants = 0
-        # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "controle_vide" avec le controle voulu pour ajouter le controle dans les lancements)
-        if ("controle_vide.py" in self.loaded_controles and "ctrl_controle_vide.py" in self.loaded_controles):
-            controle_vide.controle_vide(self, ctrl_controle_vide.ctrl_controle_vide) #type: ignore
+        # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
+        if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
+            intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore
         if ("rebroussement.py" in self.loaded_controles and "ctrl_rebroussement.py" in self.loaded_controles):
             rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
         if ("auto_intersection.py" in self.loaded_controles and "ctrl_auto_intersection.py" in self.loaded_controles):
@@ -359,7 +357,6 @@ class Controles_IGN:
             self.dlg_voir.suppr.clicked.connect(self.affichage_controles.suppr_controle)
             self.dlg_voir.blink.clicked.connect(self.affichage_controles.clignoter)
             self.voir_clicked = True
-
 
         # See if OK was pressed
         result = self.dlg.exec_()

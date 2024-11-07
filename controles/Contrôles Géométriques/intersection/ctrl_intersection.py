@@ -11,7 +11,7 @@ def get_holes_in_shape(data, len_data):
             start_points.append(data[i])
     return start_points
 
-def ctrl_controle_vide(param, data, otherdata):
+def ctrl_intersection(param, data, otherdata):
     controles = []
     start_points = get_holes_in_shape(otherdata, len(otherdata) - 1)
     for i in range(len(data) - 1):
