@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QEventLoop
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton
 from qgis.core import QgsProject, Qgis
@@ -35,7 +35,7 @@ from .affichage_contrôles import affichage_controles
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches
+from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis
 import os.path
 
 
@@ -61,6 +61,7 @@ class Controles_IGN:
         self.dlg_voir = voir_controles()
         self.dlg_pas = pas_controles()
         self.dlg_trop = trop_de_couches()
+        self.dlg_precis = choix_precis()
         self.dlg_trop.setFixedSize(self.dlg_trop.size())
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -224,6 +225,20 @@ class Controles_IGN:
 
 
 # PARTIE PLUGIN
+
+    # récupère les objets cochées dans la fenètre de précisions et les renvoies dans un tableau
+    def deuxieme_demande(self, nom, func):
+        temp = []
+        for item in self.dlg_controles.treeWidget.findItems(nom, QtCore.Qt.MatchRecursive):
+            if item.checkState(0) == 2:
+                self.dlg_precis.setWindowTitle("deuxième choix: " + nom)
+                self.gestion_couches.precis_add_layers()
+                func(self)
+                if(self.dlg_precis.exec()):
+                    for layers in self.dlg_precis.treeWidget.findItems("", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
+                        if layers.checkState(0):
+                            temp.append(layers.text(0))
+        return temp
     # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles
     def run_controls(self):
         self.gestion_controles.nb_controles_actifs()
@@ -242,6 +257,8 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         self.controles_restants = 0
+        self.precis_intersection = self.deuxieme_demande("intersection", intersection.get_params) #type: ignore
+        print(self.precis_intersection)
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore
@@ -351,6 +368,9 @@ class Controles_IGN:
             self.dlg_couches.check_all.clicked.connect(self.gestion_couches.check_layer_boxes)
             self.dlg_controles.lineEdit.textChanged.connect(self.recherche.search_control)
             self.dlg_couches.lineEdit.textChanged.connect(self.recherche.search_couche)
+            self.dlg_precis.lineEdit.textChanged.connect(self.recherche.search_precis)
+            self.dlg_precis.check_all.clicked.connect(self.gestion_couches.precis_check_layer_boxes)
+            self.dlg_precis.uncheck_all.clicked.connect(self.gestion_couches.precis_uncheck_layer_boxes)
         if self.voir_clicked == False:
             self.dlg_voir.showme.clicked.connect(self.affichage_controles.moveto)
             self.dlg_voir.zoom.clicked.connect(self.affichage_controles.zoomto)

@@ -1,18 +1,81 @@
-#0
+#1
 import os
 from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
 
+def see_if_ok(self, enfant, i):
+    for j in range (len(enfant)):
+        for layers in QgsProject.instance().mapLayers().values():
+            if layers.name() == enfant[j][0]:
+                attributs = layers.fields().names()
+                break
+        if len(enfant[j]) > 1 and enfant[j][1] not in attributs :
+            self.iface.messageBar().pushMessage("Attention", "Attribut {} pour la variable {} non trouvé dans la ligne {} du paramétrage: cette ligne sera ignorée".format(enfant[j][1], enfant[j][0], i + 3), level=Qgis.Warning, duration=10)
+            return 1
+    return 0
+
 # lecture du fichier param.txt pour les paramètres du controles
+# récupère les lignes à partir de la quatrième, et parses les paramètres
+# la partie à gauche du : est le "parent", si il est trouvé et valide, coches les valeurs à droite si elles sont valides
+def get_params(self):
+    filename = (os.path.dirname(os.path.realpath(__file__)) + "\\param.txt")
+    temp = []
+    line_number = 0
+    if os.path.isfile(filename):
+        f = open(filename)
+        for line in f:
+            temp.append(line)
+            line_number += 1
+        f.close()
+        for i in range (len(temp) - 3):
+            params = temp[i + 3].split(" : ")
+            # regardes si il y à bien deux parties, et seuelemnt 2
+            if (len(params) != 2):
+                self.iface.messageBar().pushMessage("Attention", "Erreur dans la lecture de la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
+                continue
+            # partie du parent
+            parent = params[0].split(" -- ")
+            for layers in QgsProject.instance().mapLayers().values():
+                if layers.name() == parent[0]:
+                    attributs = layers.fields().names()
+                    break
+            if parent[1] not in attributs:
+                self.iface.messageBar().pushMessage("Attention", "Attribut {} pour la variable {} non trouvé dans la ligne {} du paramétrage: cette ligne sera ignorée".format(parent[1], parent[0], i + 3), level=Qgis.Warning, duration=10)
+                continue
+            # partie des enfants 
+            enfant = []
+            for objects in params[1].split(" ; "):
+                enfant.append(objects.split(" -- "))
+            if len(enfant) < 1:
+                self.iface.messageBar().pushMessage("Attention", "Valeurs à comparer non trouvéés dans la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
+                continue
+            # enlève le retour à la ligne de la dernière variable
+            if len(enfant[len(enfant) - 1]) == 1:
+                place = 0
+            else:
+                place = 1
+            for j in range(len(enfant[len(enfant) - 1][place])):
+                if (enfant[len(enfant) - 1][place][j] == '\n'):
+                    enfant[len(enfant) - 1][place] = enfant[len(enfant) - 1][place][:j] + '' + enfant[len(enfant) - 1][place][j + 1:]
+            # active les enfants si toutes les variables sont ok
+            for item in self.dlg_couches.treeWidget.findItems(parent[0], QtCore.Qt.MatchRecursive):
+                if item.checkState(0) == 2 and see_if_ok(self, enfant, i) == 0:
+                    for j in range (len(enfant)):
+                        if (len(enfant[j]) == 1):
+                            for objects in self.dlg_precis.treeWidget.findItems(enfant[j][0], QtCore.Qt.MatchRecursive):
+                                objects.setCheckState(0, 2)
+                            continue
+                        for objects in self.dlg_precis.treeWidget.findItems(enfant[j][0], QtCore.Qt.MatchRecursive):
+                            objects.setCheckState(0, 2)   
+    return
+
 # un seul paramètre est pris en comote actuellement, et ne prends que les chiffres
 def read(self):
     filename = (os.path.dirname(os.path.realpath(__file__)) + "\\param.txt")
     parametres = []
     line_number = 0
-    angle = 0
-    distance = 0
     if os.path.isfile(filename):
         f = open(filename)
         for line in f:
@@ -36,8 +99,7 @@ def get_quantity(self):
                 for f in layers.getFeatures():
                     geom = f.geometry()
                     for part in geom.parts():
-                        if ("LineString" in QgsWkbTypes.displayString(part.wkbType())):
-                            quantity += 1
+                        quantity += 1
     return quantity
 
 def nb_for_tuple(self, str):
@@ -83,19 +145,17 @@ def intersection(self, func):
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès
-                                    if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):
-                                        break
                                     bar.setValue(items_done)
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
                                     for otherLayers in allLayers:
+                                        if otherLayers.name() not in self.precis_intersection:
+                                            continue
                                         for otherf in otherLayers.getFeatures():
                                             otherGeom = otherf.geometry()
                                             for otherPart in otherGeom.parts():
-                                                if ("LineString" not in QgsWkbTypes.displayString(otherPart.wkbType())):
-                                                    break
                                                 othernums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherPart.asWkt())
                                                 othercoords = tuple(zip(*[map(float, othernums)] * nb_for_tuple(self, otherPart.asWkt())))
                                                 temp = func(parametres[0], coords, othercoords)

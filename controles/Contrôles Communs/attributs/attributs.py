@@ -1,4 +1,4 @@
-#1
+#0
 import os
 from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
