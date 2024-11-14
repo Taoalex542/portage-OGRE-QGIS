@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QEventLoop
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton
 from qgis.core import QgsProject, Qgis
@@ -229,15 +229,24 @@ class Controles_IGN:
     # récupère les objets cochées dans la fenètre de précisions et les renvoies dans un tableau
     def deuxieme_demande(self, nom, func):
         temp = []
+        text = self.dlg_precis.lineEdit.text()
+        self.dlg_precis.lineEdit.setText("")
+        otext = self.dlg_controles.lineEdit.text()
+        self.dlg_couches.lineEdit.setText("")
         for item in self.dlg_controles.treeWidget.findItems(nom, QtCore.Qt.MatchRecursive):
             if item.checkState(0) == 2:
                 self.dlg_precis.setWindowTitle("deuxième choix: " + nom)
                 self.gestion_couches.precis_add_layers()
-                func(self)
+                tuples = func(self)
+                self.dlg_precis.lineEdit.setText(text)
                 if(self.dlg_precis.exec()):
+                    temp = tuples
                     for layers in self.dlg_precis.treeWidget.findItems("", QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive):
                         if layers.checkState(0):
                             temp.append(layers.text(0))
+                else:
+                    return ["b*#ZfD=ku%P-QGUd~s;e5MzEmKvaSC"]
+        self.dlg_couches.lineEdit.setText(otext)
         return temp
     # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles
     def run_controls(self):
@@ -258,6 +267,10 @@ class Controles_IGN:
             self.control_layer_found = False
         self.controles_restants = 0
         self.precis_intersection = self.deuxieme_demande("intersection", intersection.get_params) #type: ignore
+        if self.precis_intersection[0] == "b*#ZfD=ku%P-QGUd~s;e5MzEmKvaSC":
+            self.iface.messageBar().clearWidgets()
+            self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=10)
+            return
         print(self.precis_intersection)
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):

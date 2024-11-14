@@ -85,6 +85,7 @@ class recherche(QDockWidget):
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
                     item.setCheckState(0, items[1])
         self.main.dlg_couches.treeWidget.expandAll()
+        self.main.dlg_precis.lineEdit.setText(self.main.dlg_couches.lineEdit.text())
 
 
     # recherche dans les contrôles

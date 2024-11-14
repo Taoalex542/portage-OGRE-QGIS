@@ -98,7 +98,7 @@ def attributs(self, func):
                                     attributs = f.attributes()
                                     bar.setValue(int(items_done))
                                     for otherf in layers.getFeatures():
-                                        if otherf.id() < items_done:
+                                        if otherf.id() < f.id():
                                             continue
                                         other_attributs = otherf.attributes()
                                         othergeom = otherf.geometry()

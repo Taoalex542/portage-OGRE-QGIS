@@ -440,3 +440,5 @@ class gestion_couches(QDockWidget):
                 layer.setCheckState(0, 0)
             if(type(i) == qgis._core.QgsLayerTreeGroup):
                 self.precis_set_group_items(i, None)
+        if (self.main.dlg_precis.lineEdit.text() != ""):
+            self.main.recherche.search_precis()

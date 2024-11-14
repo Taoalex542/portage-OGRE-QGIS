@@ -1,6 +1,6 @@
 #1
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
@@ -22,6 +22,7 @@ def see_if_ok(self, enfant, i):
 def get_params(self):
     filename = (os.path.dirname(os.path.realpath(__file__)) + "\\param.txt")
     temp = []
+    todo = []
     line_number = 0
     if os.path.isfile(filename):
         f = open(filename)
@@ -30,6 +31,7 @@ def get_params(self):
             line_number += 1
         f.close()
         for i in range (len(temp) - 3):
+            values = []
             params = temp[i + 3].split(" : ")
             # regardes si il y à bien deux parties, et seuelemnt 2
             if (len(params) != 2):
@@ -68,8 +70,11 @@ def get_params(self):
                                 objects.setCheckState(0, 2)
                             continue
                         for objects in self.dlg_precis.treeWidget.findItems(enfant[j][0], QtCore.Qt.MatchRecursive):
-                            objects.setCheckState(0, 2)   
-    return
+                            objects.setCheckState(0, 2)
+                        values.append(tuple((enfant[j][0], enfant[j][1])))
+            if values != []:
+                todo.append(values)
+    return todo
 
 # un seul paramètre est pris en comote actuellement, et ne prends que les chiffres
 def read(self):
@@ -109,6 +114,21 @@ def nb_for_tuple(self, str):
         if str[i] == ' ':
             nb += 1
         i += 1
+    return nb
+
+def has_settings(param, name):
+    return
+
+def get_value_pos(param, names):
+    nb = 0
+    if param == None:
+        return nb
+    for name in names:
+        if param == name:
+            return nb
+        nb += 1
+    if nb == len(names) - 1:
+        nb = 0
     return nb
 
 # execution du controle
@@ -156,6 +176,8 @@ def intersection(self, func):
                                         for otherf in otherLayers.getFeatures():
                                             otherGeom = otherf.geometry()
                                             for otherPart in otherGeom.parts():
+                                                if (layers.name() == otherLayers.name() and otherf.id() < f.id()):
+                                                    continue
                                                 othernums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherPart.asWkt())
                                                 othercoords = tuple(zip(*[map(float, othernums)] * nb_for_tuple(self, otherPart.asWkt())))
                                                 temp = func(parametres[0], coords, othercoords)
@@ -169,7 +191,10 @@ def intersection(self, func):
                                                             test.append(layers.fields().names())
                                                             ctrl = QgsFeature()
                                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                            ctrl.setAttributes(["Géométrie", "{} identifiant {} inersecte avec {} identifiant {}".format(layers.name(), f.id(), otherLayers.name(), otherf.id()), layers.name(), test])
+                                                            if f.id() == otherf.id():
+                                                                ctrl.setAttributes(["Géométrie", "{} identifiant {} s'auto-intersecte".format(layers.name(), f.id()), layers.name(), test])
+                                                            else:
+                                                                ctrl.setAttributes(["Géométrie", "{} identifiant {} inersecte avec {} identifiant {}".format(layers.name(), f.id(), otherLayers.name(), otherf.id()), layers.name(), test])
                                                             self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                             self.controlpoint_layer.updateExtents()
                                                 temp = []
