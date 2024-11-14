@@ -2,4 +2,4 @@ bloquant = 0
 obligatoire = 0
 importance = -1
 troncon_de_route -- position_par_rapport_au_sol : troncon_de_voie_ferree -- position_par_rapport_au_sol ; troncon_de_route -- position_par_rapport_au_sol ; canalisation
-troncon_de_route -- banane : troncon_de_voie_ferree -- position_par_rapport_au_sol
+troncon_de_voie_ferree : ligne_electrique

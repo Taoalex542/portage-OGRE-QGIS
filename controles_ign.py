@@ -261,17 +261,16 @@ class Controles_IGN:
             self.iface.messageBar().pushMessage("Erreur", "Aucune couche séléctionnée", level=Qgis.Warning, duration=10)
             return
         #supprime la couche des contrôles si ell existe
-        if self.affichage_controles.get_total_controles() != 0:
-            qinst = QgsProject.instance()
-            qinst.removeMapLayer(self.controlpoint_layer)
-            self.control_layer_found = False
-        self.controles_restants = 0
         self.precis_intersection = self.deuxieme_demande("intersection", intersection.get_params) #type: ignore
         if self.precis_intersection[0] == "b*#ZfD=ku%P-QGUd~s;e5MzEmKvaSC":
             self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=10)
             return
-        print(self.precis_intersection)
+        if self.affichage_controles.get_total_controles() != 0:
+            qinst = QgsProject.instance()
+            qinst.removeMapLayer(self.controlpoint_layer)
+            self.control_layer_found = False
+        self.controles_restants = 0
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore

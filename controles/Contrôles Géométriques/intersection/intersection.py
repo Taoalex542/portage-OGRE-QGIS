@@ -33,45 +33,53 @@ def get_params(self):
         for i in range (len(temp) - 3):
             values = []
             params = temp[i + 3].split(" : ")
-            # regardes si il y à bien deux parties, et seuelemnt 2
+            # regardes si il y a bien deux parties, et seulment 2
             if (len(params) != 2):
                 self.iface.messageBar().pushMessage("Attention", "Erreur dans la lecture de la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
                 continue
             # partie du parent
             parent = params[0].split(" -- ")
+            lparent = len(parent)
+            if lparent == 1 and '-' in parent[0]:
+                self.iface.messageBar().pushMessage("Attention", "Erreur dans le parsage de la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
+                continue
             for layers in QgsProject.instance().mapLayers().values():
                 if layers.name() == parent[0]:
                     attributs = layers.fields().names()
                     break
-            if parent[1] not in attributs:
+            if lparent == 2 and parent[1] not in attributs:
                 self.iface.messageBar().pushMessage("Attention", "Attribut {} pour la variable {} non trouvé dans la ligne {} du paramétrage: cette ligne sera ignorée".format(parent[1], parent[0], i + 3), level=Qgis.Warning, duration=10)
                 continue
             # partie des enfants 
             enfant = []
             for objects in params[1].split(" ; "):
                 enfant.append(objects.split(" -- "))
-            if len(enfant) < 1:
-                self.iface.messageBar().pushMessage("Attention", "Valeurs à comparer non trouvéés dans la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
+            lenfant = len(enfant)
+            if lenfant < 1:
+                self.iface.messageBar().pushMessage("Attention", "Valeurs à comparer non trouvées dans la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
                 continue
             # enlève le retour à la ligne de la dernière variable
-            if len(enfant[len(enfant) - 1]) == 1:
+            if len(enfant[lenfant - 1]) == 1:
                 place = 0
             else:
                 place = 1
-            for j in range(len(enfant[len(enfant) - 1][place])):
-                if (enfant[len(enfant) - 1][place][j] == '\n'):
-                    enfant[len(enfant) - 1][place] = enfant[len(enfant) - 1][place][:j] + '' + enfant[len(enfant) - 1][place][j + 1:]
+            for j in range(len(enfant[lenfant - 1][place])):
+                if (enfant[lenfant - 1][place][j] == '\n'):
+                    enfant[lenfant - 1][place] = enfant[lenfant - 1][place][:j] + '' + enfant[lenfant - 1][place][j + 1:]
             # active les enfants si toutes les variables sont ok
             for item in self.dlg_couches.treeWidget.findItems(parent[0], QtCore.Qt.MatchRecursive):
                 if item.checkState(0) == 2 and see_if_ok(self, enfant, i) == 0:
-                    for j in range (len(enfant)):
+                    for j in range (lenfant):
                         if (len(enfant[j]) == 1):
                             for objects in self.dlg_precis.treeWidget.findItems(enfant[j][0], QtCore.Qt.MatchRecursive):
                                 objects.setCheckState(0, 2)
                             continue
                         for objects in self.dlg_precis.treeWidget.findItems(enfant[j][0], QtCore.Qt.MatchRecursive):
                             objects.setCheckState(0, 2)
-                        values.append(tuple((enfant[j][0], enfant[j][1])))
+                        if (lparent == 2):
+                            if (values == [] and len (parent) == 2):
+                                values.append(tuple((parent[0], parent[1])))
+                            values.append(tuple((enfant[j][0], enfant[j][1])))
             if values != []:
                 todo.append(values)
     return todo
@@ -117,18 +125,23 @@ def nb_for_tuple(self, str):
     return nb
 
 def has_settings(param, name):
-    return
+    for item in param:
+        if isinstance(item, list):
+            for things in item:
+                if name == things[0]:
+                    return things[1]
+    return None
 
 def get_value_pos(param, names):
     nb = 0
     if param == None:
-        return nb
+        return None
     for name in names:
         if param == name:
             return nb
         nb += 1
     if nb == len(names) - 1:
-        nb = 0
+        nb = None
     return nb
 
 # execution du controle
@@ -145,7 +158,6 @@ def intersection(self, func):
                 self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
-                parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
                 bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
@@ -160,6 +172,7 @@ def intersection(self, func):
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                             # récupère les informations des couches
                             for f in layers.getFeatures():
+                                attributs = f.attributes()
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
@@ -174,13 +187,25 @@ def intersection(self, func):
                                         if otherLayers.name() not in self.precis_intersection:
                                             continue
                                         for otherf in otherLayers.getFeatures():
+                                            otherAttributs = otherf.attributes()
                                             otherGeom = otherf.geometry()
                                             for otherPart in otherGeom.parts():
                                                 if (layers.name() == otherLayers.name() and otherf.id() < f.id()):
                                                     continue
                                                 othernums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherPart.asWkt())
                                                 othercoords = tuple(zip(*[map(float, othernums)] * nb_for_tuple(self, otherPart.asWkt())))
-                                                temp = func(parametres[0], coords, othercoords)
+                                                parametres = []
+                                                settings = has_settings(self.precis_intersection, layers.name())
+                                                if settings != None:
+                                                    parametres.append(attributs[get_value_pos(settings, layers.fields().names())])
+                                                else:
+                                                    parametres.append(None)
+                                                othersettings = has_settings(self.precis_intersection, otherLayers.name())
+                                                if othersettings != None:
+                                                    parametres.append(otherAttributs[get_value_pos(othersettings, otherLayers.fields().names())])
+                                                else:
+                                                    parametres.append(None)
+                                                temp = func(parametres, coords, othercoords)
                                                 if temp != []:
                                                     if self.control_layer_found == False:
                                                         self.affichage_controles.create_controlpoint_layer()
