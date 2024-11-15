@@ -247,6 +247,9 @@ class Controles_IGN:
                             temp.append(layers.text(0))
                 else:
                     return ["b*#ZfD=ku%P-QGUd~s;e5MzEmKvaSC"]
+            else :
+                self.dlg_couches.lineEdit.setText(otext)
+                return [None]
         self.dlg_couches.lineEdit.setText(otext)
         return temp
     # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles

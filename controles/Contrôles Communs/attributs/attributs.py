@@ -19,8 +19,8 @@ def read(self):
             line_number += 1
         f.close()
 
-        if line_number != 0:
-            return parametres[0]
+        if line_number > 4:
+            return parametres[4]
         else:
             return None
         

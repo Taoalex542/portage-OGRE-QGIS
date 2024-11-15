@@ -5,46 +5,6 @@ from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
 
-# lecture du fichier param.txt pour les paramètres du controles
-# un seul paramètre est pris en comote actuellement, et ne prends que les chiffres
-def read(self):
-    filename = (os.path.dirname(os.path.realpath(__file__)) + "\\param.txt")
-    parametres = []
-    line_number = 0
-    valeur = 0
-
-    if os.path.isfile(filename):
-        f = open(filename)
-        for line in f:
-            parametres.append(line)
-            line_number += 1
-        f.close()
-
-        if line_number >= 1:
-            # lis la première ligne pour le paramètre de la valeur contenu dans paramètre[0]
-            # si le paramètre est autre chose qu'un chiffre pu un retour à la ligne (\n) il redevient à son état de base et arrète de lire
-            for characters in parametres[0]:
-                if ((characters < '0' or characters > '9') and characters != '\n'):
-                    self.iface.messageBar().clearWidgets()
-                    self.iface.messageBar().pushMessage("Attention", "paramètre de valeur invalide".format(str(filename)), level=Qgis.Critical, duration=10)
-                    valeur = 10
-                    break
-            if (valeur == 0):
-                valeur = int(parametres[0])
-            # gestion d'erreur pour une valeur invalide (dans ce cas si valeur est plus grand de 50)
-            if (valeur > 50):
-                valeur = 10
-                self.iface.messageBar().clearWidgets()
-                self.iface.messageBar().pushMessage("Attention", "paramètre de valeur invalide".format(str(filename)), level=Qgis.Critical, duration=10)
-        else:
-            valeur = 10
-        parametres = [valeur]
-        return parametres
-    else:
-        self.iface.messageBar().clearWidgets()
-        self.iface.messageBar().pushMessage("Attention", "{} n'a pas pu être ouvert".format(str(filename)), level=Qgis.Critical, duration=10)
-        return [0]
-
 # récupère le nombre total d'objets sur le quel le contrôle va travailler (actuellement seul les lignes)
 def get_quantity(self):
     quantity = 0
@@ -84,7 +44,6 @@ def auto_intersection(self, func):
                 self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
-                parametres = read(self)
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
                 bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
@@ -112,7 +71,7 @@ def auto_intersection(self, func):
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
-                                    temp = func(parametres, coords)
+                                    temp = func(coords)
                                     if temp != []:
                                         if self.control_layer_found == False:
                                             self.affichage_controles.create_controlpoint_layer()

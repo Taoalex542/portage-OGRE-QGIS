@@ -20,17 +20,17 @@ def read(self):
             line_number += 1
         f.close()
 
-        if line_number >= 4:
+        if line_number >= 5:
             # lis la première ligne pour le paramètre de l'angle contenu dans paramètre[0]
             # si le paramètre est autre chose qu'un chiffre pu un retour à la ligne (\n) il redevient à son état de base et arrète de lire
-            for characters in parametres[3]:
+            for characters in parametres[4]:
                 if ((characters < '0' or characters > '9') and characters != '\n'):
                     self.iface.messageBar().clearWidgets()
                     self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
                     angle = 10
                     break
             if (angle == 0):
-                angle = int(parametres[3])
+                angle = int(parametres[4])
             # gestion d'erreur pour un angle invalide (dans ce cas si angle est plus grand de 50°)
             if (angle > 50):
                 angle = 10
@@ -38,15 +38,15 @@ def read(self):
                 self.iface.messageBar().pushMessage("Attention", "paramètre d'angle invalide".format(str(filename)), level=Qgis.Critical, duration=10)
 
             # lis la deuxième ligne (si elle existe) de la même manière que la première
-            if line_number >= 5:
-                for characters in parametres[4]:
+            if line_number >= 6:
+                for characters in parametres[5]:
                     if ((characters < '0' or characters > '9') and characters != '\n' and characters !='.'):
                         self.iface.messageBar().clearWidgets()
                         self.iface.messageBar().pushMessage("Attention", "paramètre de distance minimale invalide".format(str(filename)), level=Qgis.Critical, duration=10)
                         distance = 0.01
                         break
                 if (distance == 0):
-                    distance = float(parametres[4])
+                    distance = float(parametres[5])
             else:
                 distance = 0.01
         else:
