@@ -32,9 +32,9 @@ def get_params(self):
             line_number += 1
         f.close()
         # pour chaque lignes
-        for i in range (len(temp) - 3):
+        for i in range (len(temp) - 4):
             values = []
-            params = temp[i + 3].split(" : ")
+            params = temp[i + 4].split(" : ")
             # regardes si il y a bien deux parties, et seulment 2
             if (len(params) != 2):
                 self.iface.messageBar().pushMessage("Attention", "Erreur dans la lecture de la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
