@@ -227,7 +227,7 @@ class Controles_IGN:
 
 # PARTIE PLUGIN
 
-    # récupère les objets cochées dans la fenètre de précisions et les renvoies dans un tableau
+    # récupère les objets cochés dans la fenètre de précisions et les renvoies dans un tableau
     def deuxieme_demande(self, nom, func):
         temp = []
         text = self.dlg_precis.lineEdit.text()
