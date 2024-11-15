@@ -31,6 +31,7 @@ from .gestion_couches import gestion_couches
 from .gestion_contrôles import gestion_controles
 from .recherche import recherche
 from .affichage_contrôles import affichage_controles
+import re
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -329,21 +330,22 @@ class Controles_IGN:
             else:
                 globals()[module_name] = imported_module
         # ajoute les controles ainsi que leurs dossier parents jusqu'à "controles" dans une liste ajoutée à self.organisation
-        val = 0
         for item in sources:
             controle = []
             if ("ctrl" not in item):
-                f = open(item)
-                controle.append(f.readline())
-                f.close()
                 temp = item.split('\\')
                 split_len = len(temp)
+                f = open(item.replace(temp[split_len - 1], "param.txt"))
+                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                f.close()
                 for i in range(split_len):
                     if (temp[i] == "Contrôles_IGN"):
                         for j in range(split_len - i):
                             if (".py" in temp[j + i]):
                                 k = 1
-                                
                                 while temp[j + i - k] != "controles":
                                     controle.append(temp[j + i - k])
                                     k = k + 1

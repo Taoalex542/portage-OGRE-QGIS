@@ -1,6 +1,6 @@
-#0
+# coding=utf-8
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re

@@ -1,5 +1,6 @@
-bloquant = 0
-obligatoire = 0
-importance = -1
+bloquant = 1 | soit 0 ou 1, determine si le controle est bloquant pour une réconcilliation si une erreur trouvée par ce contrôle est présente
+obligatoire = 1 | soit 0 ou 1, détermine si le controle doit etre lancé au moins une fois avant de pouvoir réconcillier
+importance = -1 | de 0 à 9223372036854775807 (0 étant le plus important), -1 est pour les non définis/non pris en compte
+actif au début = 1 | soit 0 ou 1, determine si le controle est activé ou non au lancement du plugin
 troncon_de_route -- position_par_rapport_au_sol : troncon_de_voie_ferree -- position_par_rapport_au_sol ; troncon_de_route -- position_par_rapport_au_sol ; canalisation
 troncon_de_voie_ferree : ligne_electrique

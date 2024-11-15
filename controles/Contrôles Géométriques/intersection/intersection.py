@@ -1,4 +1,4 @@
-#1
+# coding=utf-8
 import os
 from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit
 from qgis import QtCore
@@ -63,9 +63,7 @@ def get_params(self):
                 place = 0
             else:
                 place = 1
-            for j in range(len(enfant[lenfant - 1][place])):
-                if (enfant[lenfant - 1][place][j] == '\n'):
-                    enfant[lenfant - 1][place] = enfant[lenfant - 1][place][:j] + '' + enfant[lenfant - 1][place][j + 1:]
+            print(enfant[lenfant - 1][place].replace("\n", ""))
             # active les enfants si toutes les variables sont ok
             for item in self.dlg_couches.treeWidget.findItems(parent[0], QtCore.Qt.MatchRecursive):
                 if item.checkState(0) == 2 and see_if_ok(self, enfant, i) == 0:

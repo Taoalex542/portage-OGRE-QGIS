@@ -109,10 +109,8 @@ class gestion_controles(QDockWidget):
     # ex: controle_test => controle test
     def joli_noms(self, controle):
         test = controle.copy()
-        for i in range(len(test)):
-            for j in range(len(test[i])):
-                if (test[i][j] == '_'):
-                    test[i] = test[i][:j] + ' ' + test[i][j + 1:]
+        for i in range(len(test) - 4):
+            test[i + 4] = test[i + 4].replace("_", " ")
         return test
 
     # ajoute les contrôles voulus dans le treeView de self.main.dlg_controles
@@ -120,11 +118,11 @@ class gestion_controles(QDockWidget):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
             path_len = len(controle)
-            if (controle[1] + ".py" in self.main.loaded_controles and "ctrl_" + controle[1] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
+            if (controle[4] + ".py" in self.main.loaded_controles and "ctrl_" + controle[4] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
                 temp = self.joli_noms(controle)
-                if (path_len == 2): #si le controle est à la racine
+                if (path_len == 5): #si le controle est à la racine
                     item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
-                    item.setText(0, '%s' % temp[1])
+                    item.setText(0, '%s' % temp[4])
                     item.setCheckState(0, 2)
                 else :
                     category = self.main.dlg_controles.treeWidget.findItems(controle[path_len - 1], QtCore.Qt.MatchRecursive)
@@ -134,22 +132,22 @@ class gestion_controles(QDockWidget):
                         type = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
                         type.setText(0, '%s' % temp[path_len - 1])
                         type.setFlags(type.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-                    for i in range(path_len - 3): #si il y a plus de 1 dossier parent, passes dans la boucle
-                        soustype = self.main.dlg_controles.treeWidget.findItems(controle[path_len - 2 - i], QtCore.Qt.MatchRecursive)
+                    for i in range(path_len - 6): #si il y a plus de 1 dossier parent, passes dans la boucle
+                        soustype = self.main.dlg_controles.treeWidget.findItems(controle[path_len - 5 - i], QtCore.Qt.MatchRecursive)
                         if soustype != []:
                             sous = soustype[0]
                         else:
                             sous = QTreeWidgetItem(type)
-                            sous.setText(0, '%s' % controle[path_len - 2 - i])
+                            sous.setText(0, '%s' % controle[path_len - 5 - i])
                             sous.setFlags(sous.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
                         type = sous
-                    if (path_len - 3 != 0):
+                    if (path_len - 6 != 0):
                         item = QTreeWidgetItem(sous)
                     else:
                         item = QTreeWidgetItem(type)
-                    item.setText(0, '%s' % temp[1])
+                    item.setText(0, '%s' % temp[4])
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-                if (controle[0] == "#0\n"):
+                if (controle[3] == 1):
                     item.setCheckState(0, 0)
                 else:
                     item.setCheckState(0, 2)
