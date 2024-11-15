@@ -252,6 +252,7 @@ class Controles_IGN:
                 return [None]
         self.dlg_couches.lineEdit.setText(otext)
         return temp
+    
     # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles
     def run_controls(self):
         self.gestion_controles.nb_controles_actifs()
@@ -295,12 +296,15 @@ class Controles_IGN:
         self.iface.messageBar().clearWidgets()
         self.iface.messageBar().pushWidget(widget, Qgis.Warning, duration=10)
 
+
+
     # coche toutes les cases
     def reset(self):
         self.gestion_controles.check_control_boxes()
         self.gestion_couches.check_layer_boxes()
         self.iface.messageBar().clearWidgets()
         self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
+
 
 
     # récupère tous les fichiers pythons présents dans la source donnée
@@ -320,6 +324,28 @@ class Controles_IGN:
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         return module
+
+    # gestion d'erreur de la lecture des paramètres
+    def get_info(self, file, name, path, controle):
+        if file == []:
+            self.iface.messageBar().clearWidgets()
+            self.iface.messageBar().pushMessage("Erreur Critique", "La variable {} du fichier {} est illisible, la valeur par défaut va être utilisée".format(name, path), level=Qgis.Critical)
+            if name == "actif":
+                controle.append(0)
+            elif name == "importance":
+                controle.append(-1)
+            else:
+                controle.append(1)
+        else:
+            if file[0] != 0 and file[0] != 1 and name != "importance":
+                self.iface.messageBar().clearWidgets()
+                self.iface.messageBar().pushMessage("Erreur Critique", "La variable {} du fichier {} est inutilisable, la valeur par défaut va être utilisée".format(name, path), level=Qgis.Critical)
+                if name == "actif":
+                    controle.append(0)
+                else:
+                    controle.append(1)
+            else:
+                controle.append(file[0])
 
     # importes tous les fichiers python présents dans le dossier controle 
     def dynamic_import_from_src(self, src, star_import = False):
@@ -348,11 +374,12 @@ class Controles_IGN:
                     controle.append(-1)
                     controle.append(0)
                 else:
-                    f = open(item.replace(temp[split_len - 1], "param.txt"))
-                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                    path = item.replace(temp[split_len - 1], "param.txt")
+                    f = open(path)
+                    self.get_info([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))], "bloquant", path, controle)
+                    self.get_info([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))], "obligatoire", path, controle)
+                    self.get_info([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))], "importance", path, controle)
+                    self.get_info([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))], "actif", path, controle)
                     f.close()
                 for i in range(split_len):
                     if (temp[i] == "Contrôles_IGN"):
