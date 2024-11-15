@@ -38,7 +38,7 @@ def read(self):
 
             # lis la deuxième ligne (si elle existe) de la même manière que la première
             if line_number >= 6:
-                distance = [int(d) for d in re.findall(r'-?\d+\.|\,?\d+',parametres[4])]
+                distance = [int(d) for d in re.findall(r'-?\d+(?:\.|\,)?\d+',parametres[4])]
                 if distance == []:
                     self.iface.messageBar().clearWidgets()
                     self.iface.messageBar().pushMessage("Attention", "paramètre de distance minimale invalide, utilisation de la valeur par défaut".format(str(filename)), level=Qgis.Critical, duration=10)
