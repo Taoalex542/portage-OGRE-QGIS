@@ -335,12 +335,22 @@ class Controles_IGN:
             if ("ctrl" not in item):
                 temp = item.split('\\')
                 split_len = len(temp)
-                f = open(item.replace(temp[split_len - 1], "param.txt"))
-                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
-                f.close()
+                with open(item.replace(temp[split_len - 1], "param.txt")) as f:
+                    count = sum(1 for _ in f)
+                if count < 4:
+                    self.iface.messageBar().clearWidgets()
+                    self.iface.messageBar().pushMessage("Erreur Critique", "Le fichier {} est illisible, les valeurs par défaut vont être utilisées".format(item.replace(temp[split_len - 1], "param.txt")), level=Qgis.Critical)
+                    controle.append(1)
+                    controle.append(1)
+                    controle.append(-1)
+                    controle.append(0)
+                else:
+                    f = open(item.replace(temp[split_len - 1], "param.txt"))
+                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                    controle.append([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))][0])
+                    f.close()
                 for i in range(split_len):
                     if (temp[i] == "Contrôles_IGN"):
                         for j in range(split_len - i):
