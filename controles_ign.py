@@ -22,7 +22,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QPushButton
+from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox
 from qgis.core import QgsProject, Qgis
 from datetime import datetime
 import os
@@ -62,8 +62,9 @@ class Controles_IGN:
         self.dlg_voir = voir_controles()
         self.dlg_pas = pas_controles()
         self.dlg_trop = trop_de_couches()
-        self.dlg_precis = choix_precis()
         self.dlg_trop.setFixedSize(self.dlg_trop.size())
+        self.dlg_precis = choix_precis()
+        self.dlg_precis.setFixedSize(self.dlg_precis.size())
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -331,19 +332,19 @@ class Controles_IGN:
             self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Erreur Critique", "La variable {} du fichier {} est illisible, la valeur par défaut va être utilisée".format(name, path), level=Qgis.Critical)
             if name == "actif":
-                controle.append(0)
-            elif name == "importance":
-                controle.append(-1)
-            else:
                 controle.append(1)
+            elif name == "importance":
+                controle.append(10000)
+            else:
+                controle.append(0)
         else:
             if file[0] != 0 and file[0] != 1 and name != "importance":
                 self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Erreur Critique", "La variable {} du fichier {} est inutilisable, la valeur par défaut va être utilisée".format(name, path), level=Qgis.Critical)
                 if name == "actif":
-                    controle.append(0)
-                else:
                     controle.append(1)
+                else:
+                    controle.append(0)
             else:
                 controle.append(file[0])
 
@@ -369,10 +370,10 @@ class Controles_IGN:
                 if count < 4:
                     self.iface.messageBar().clearWidgets()
                     self.iface.messageBar().pushMessage("Erreur Critique", "Le fichier {} est illisible, les valeurs par défaut vont être utilisées".format(item.replace(temp[split_len - 1], "param.txt")), level=Qgis.Critical)
-                    controle.append(1)
-                    controle.append(1)
-                    controle.append(-1)
                     controle.append(0)
+                    controle.append(0)
+                    controle.append(10000)
+                    controle.append(1)
                 else:
                     path = item.replace(temp[split_len - 1], "param.txt")
                     f = open(path)
@@ -411,6 +412,12 @@ class Controles_IGN:
         # Run the dialog event loop
         if self.first_start == True:
             self.first_start = False
+            self.dlg_controles.check_all.button(QDialogButtonBox.YesToAll).setText("Tout cocher")
+            self.dlg_controles.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
+            self.dlg_couches.check_all.button(QDialogButtonBox.YesToAll).setText("Tout cocher")
+            self.dlg_couches.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
+            self.dlg_precis.check_all.button(QDialogButtonBox.YesToAll).setText("Tout cocher")
+            self.dlg_precis.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
             self.dlg.resetButton.clicked.connect(self.reset)
             self.dlg.coucheButton.clicked.connect(self.gestion_couches.choix_couches)
             self.dlg.controleButton.clicked.connect(self.gestion_controles.choix_controles)

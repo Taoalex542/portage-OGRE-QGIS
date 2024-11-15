@@ -149,9 +149,15 @@ def rebroussement(self, func):
                 self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} terminé".format(str(nom_controle)), level=Qgis.Success, duration=5)
                 self.controles_restants += 1
+                for things in self.organisation:
+                    if nom_controle in things:
+                        things[1] = 0
                 return 0
             else:
                 self.iface.messageBar().clearWidgets()
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} impossible: il n'y a pas d'objets de type \"Ligne\". Passage au suivant".format(str(nom_controle)), level=Qgis.Warning, duration=10)
                 self.controles_restants += 1
+                for things in self.organisation:
+                    if nom_controle in things:
+                        things[1] = 0
                 return 2

@@ -147,7 +147,7 @@ class gestion_controles(QDockWidget):
                         item = QTreeWidgetItem(type)
                     item.setText(0, '%s' % temp[4])
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-                if (controle[3] == 1):
+                if (controle[3] == 0):
                     item.setCheckState(0, 0)
                 else:
                     item.setCheckState(0, 2)
