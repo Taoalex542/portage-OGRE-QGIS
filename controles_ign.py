@@ -53,18 +53,6 @@ class Controles_IGN:
         """
         # Save reference to the QGIS interface
         self.iface = iface
-        self.dlg = Controles_IGNDialog()
-        self.dlg.setFixedSize(self.dlg.size())
-        self.dlg_couches = choix_couche()
-        self.dlg_couches.setFixedSize(self.dlg_couches.size())
-        self.dlg_controles = choix_controles()
-        self.dlg_controles.setFixedSize(self.dlg_controles.size())
-        self.dlg_voir = voir_controles()
-        self.dlg_pas = pas_controles()
-        self.dlg_trop = trop_de_couches()
-        self.dlg_trop.setFixedSize(self.dlg_trop.size())
-        self.dlg_precis = choix_precis()
-        self.dlg_precis.setFixedSize(self.dlg_precis.size())
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -82,14 +70,18 @@ class Controles_IGN:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Controles_IGN')
-        # Créer sa propre toolbar sur QGIS
-        self.toolbar = self.iface.addToolBar(u'Controles_IGN')
-        self.toolbar.setObjectName(u'Controles_IGN')
-
-        # Check if plugin was started the first time in current QGIS session
-        # Must be set in initGui() to survive plugin reloads
-        # initialisation de toutes les données utilisées
-        self.first_start = None
+        self.dlg = Controles_IGNDialog()
+        self.dlg.setFixedSize(self.dlg.size())
+        self.dlg_couches = choix_couche()
+        self.dlg_couches.setFixedSize(self.dlg_couches.size())
+        self.dlg_controles = choix_controles()
+        self.dlg_controles.setFixedSize(self.dlg_controles.size())
+        self.dlg_voir = voir_controles()
+        self.dlg_pas = pas_controles()
+        self.dlg_trop = trop_de_couches()
+        self.dlg_trop.setFixedSize(self.dlg_trop.size())
+        self.dlg_precis = choix_precis()
+        self.dlg_precis.setFixedSize(self.dlg_precis.size())
         self.couche_list = []
         self.controles_actifs = 0
         self.controles_restants = 0
@@ -99,14 +91,22 @@ class Controles_IGN:
         self.voir_clicked = False
         self.controlpoint_layer_name = "controles_IGN_" + datetime.today().strftime('%d_%m_%Y')
         self.total_sub_groups = 0
-        self.gestion_couches = gestion_couches(self, self.iface, self.iface.mainWindow())
-        self.gestion_controles = gestion_controles(self, self.iface, self.iface.mainWindow())
-        self.recherche = recherche(self, self.iface, self.iface.mainWindow())
-        self.affichage_controles = affichage_controles(self, self.iface, self.iface.mainWindow())
+        self.gestion_couches = gestion_couches(self, self.iface)
+        self.gestion_controles = gestion_controles(self, self.iface)
+        self.recherche = recherche(self, self.iface)
+        self.affichage_controles = affichage_controles(self, self.iface)
         self.loaded_controles = []
         self.organisation = []
         self.dynamic_import_from_src(os.path.dirname(os.path.realpath(__file__)) + "\\controles", False)
         self.gestion_controles.add_controls(False)
+        # Créer sa propre toolbar sur QGIS
+        self.toolbar = self.iface.addToolBar(u'Controles_IGN')
+        self.toolbar.setObjectName(u'Controles_IGN')
+
+        # Check if plugin was started the first time in current QGIS session
+        # Must be set in initGui() to survive plugin reloads
+        # initialisation de toutes les données utilisées
+        self.first_start = None
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -299,15 +299,6 @@ class Controles_IGN:
 
 
 
-    # coche toutes les cases
-    def reset(self):
-        self.gestion_controles.check_control_boxes()
-        self.gestion_couches.check_layer_boxes()
-        self.iface.messageBar().clearWidgets()
-        self.iface.messageBar().pushMessage("Info", "paramètres réinitialisés", level=Qgis.Info)
-
-
-
     # récupère tous les fichiers pythons présents dans la source donnée
     def get_py_files(self, src):
         cwd = os.getcwd() # Current Working directory
@@ -418,7 +409,6 @@ class Controles_IGN:
             self.dlg_couches.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
             self.dlg_precis.check_all.button(QDialogButtonBox.YesToAll).setText("Tout cocher")
             self.dlg_precis.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
-            self.dlg.resetButton.clicked.connect(self.reset)
             self.dlg.coucheButton.clicked.connect(self.gestion_couches.choix_couches)
             self.dlg.controleButton.clicked.connect(self.gestion_controles.choix_controles)
             self.dlg_controles.buttonBox.clicked.connect(self.gestion_controles.update_control_boxes)

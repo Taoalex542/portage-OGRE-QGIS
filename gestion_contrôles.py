@@ -6,8 +6,8 @@ from .resources import *
 
 class gestion_controles(QDockWidget):
 
-    def __init__(self, main, iface, parent):
-        super(gestion_controles, self).__init__(parent)
+    def __init__(self, main, iface):
+        super(gestion_controles, self).__init__()
         self.iface = iface
         self.main = main
         self.control_list = []

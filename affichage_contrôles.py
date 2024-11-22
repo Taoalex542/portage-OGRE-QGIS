@@ -9,8 +9,8 @@ from .resources import *
 
 class affichage_controles(QDockWidget):
 
-    def __init__(self, main, iface, parent):
-        super(affichage_controles, self).__init__(parent)
+    def __init__(self, main, iface):
+        super(affichage_controles, self).__init__()
         self.iface = iface
         self.main = main
         self.provider = None

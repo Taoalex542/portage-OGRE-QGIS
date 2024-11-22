@@ -8,8 +8,8 @@ from .resources import *
 
 class recherche(QDockWidget):
 
-    def __init__(self, main, iface, parent):
-        super(recherche, self).__init__(parent)
+    def __init__(self, main, iface):
+        super(recherche, self).__init__()
         self.iface = iface
         self.main = main
         self.temp_ctrl_list = []
