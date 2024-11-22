@@ -1,5 +1,6 @@
 from qgis.core import QgsRectangle, QgsMapLayer
 from qgis.gui import QgsMapTool
+from qgis.PyQt.QtCore import Qt
 
 class multi_selection_point(QgsMapTool):
 
@@ -9,6 +10,16 @@ class multi_selection_point(QgsMapTool):
         self.active = False
         QgsMapTool.__init__(self, self.canvas)
         self.setAction(action)
+    
+    # si la touche maj est appuyée, active la valeur
+    def keyPressEvent(self, e):
+        if e.key() == 16777248:
+            self.main.shift = 1
+    
+    # si la touche maj est relachée, reset la valeur
+    def keyReleaseEvent(self, e):
+        if e.key() == 16777248:
+            self.main.shift = 0
     
     # quand on clique sur le canvas, sélectionne tout ce qui est dans le point
     def canvasPressEvent(self, e):
@@ -20,7 +31,10 @@ class multi_selection_point(QgsMapTool):
             if layer.type() == QgsMapLayer.RasterLayer:
                 continue
             lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, rect)
-            layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
+            if (self.main.shift == 1):
+                layer.selectByRect(lRect, layer.SelectBehavior.AddToSelection)
+            else:
+                layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
     
     # pour activer
     def deactivate(self):

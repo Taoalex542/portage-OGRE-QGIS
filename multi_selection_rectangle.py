@@ -21,6 +21,16 @@ class multi_selection_rectangle(QgsMapTool):
         self.isEmittingPoint = False
         self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
     
+    # si la touche maj est appuyée, active la valeur
+    def keyPressEvent(self, e):
+        if e.key() == 16777248:
+            self.main.shift = 1
+    
+    # si la touche maj est relachée, reset la valeur
+    def keyReleaseEvent(self, e):
+        if e.key() == 16777248:
+            self.main.shift = 0
+    
     # quand on clique, créé un rectangle avec la position du click
     def canvasPressEvent(self, e):
         self.startPoint = self.toMapCoordinates(e.pos())
@@ -38,7 +48,10 @@ class multi_selection_rectangle(QgsMapTool):
                 continue
             if r is not None:
                 lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
-                layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
+                if (self.main.shift == 1):
+                    layer.selectByRect(lRect, layer.SelectBehavior.AddToSelection)
+                else:
+                    layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
         self.rubberBand.hide()
     
     # étends le rectangle jusqu'au curseur

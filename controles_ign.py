@@ -103,6 +103,7 @@ class Controles_IGN:
         self.gestion_controles.add_controls(False)
         self.actionList = []
         self.selected = 0
+        self.shift = 0
         # Créer sa propre toolbar sur QGIS
         self.toolbar = self.iface.addToolBar(u'Controles_IGN')
         self.toolbar.setObjectName(u'Controles_IGN')
@@ -452,7 +453,6 @@ class Controles_IGN:
             if layer.type() == QgsMapLayer.RasterLayer:
                 continue
             layer.removeSelection()
-            print("clear")
 
     def run_select(self, b):
         # si sélectionné ajoute curseur
