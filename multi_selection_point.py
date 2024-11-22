@@ -10,6 +10,7 @@ class multi_selection_point(QgsMapTool):
         QgsMapTool.__init__(self, self.canvas)
         self.setAction(action)
     
+    # quand on clique sur le canvas, sélectionne tout ce qui est dans le point
     def canvasPressEvent(self, e):
         p = self.toMapCoordinates(e.pos())
         layers = self.canvas.layers()
@@ -20,16 +21,16 @@ class multi_selection_point(QgsMapTool):
                 continue
             lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, rect)
             layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
-            self.main.selected = 1
-            print("selected")
     
+    # pour activer
     def deactivate(self):
         try:
             if self is not None:
                 QgsMapTool.deactivate(self)
         except:
             pass
-        
+    
+    # pour désactiver
     def activate(self):
         QgsMapTool.activate(self)
         try:
@@ -37,6 +38,7 @@ class multi_selection_point(QgsMapTool):
         except:
             pass
 
+    # pour décharger
     def unload(self):
         self.deactivate()        
     

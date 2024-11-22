@@ -300,6 +300,14 @@ class Controles_IGN:
         self.dlg_couches.lineEdit.setText(otext)
         return temp
     
+    def has_selected(self):
+        allLayers = QgsProject.instance().mapLayers().values()
+        for layers in allLayers:
+            layer = layers.selectedFeatures()
+            if layer != []:
+                return 1
+        return 0
+    
     # vérifie si tout est ok et que il y a des contrôles a lancer, puis lances les contrôles
     def run_controls(self):
         self.gestion_controles.nb_controles_actifs()
@@ -323,7 +331,7 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         self.controles_restants = 0
-        print(self.selected)
+        self.selected = self.has_selected()
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore
@@ -445,7 +453,6 @@ class Controles_IGN:
                 continue
             layer.removeSelection()
             print("clear")
-            self.selected = 0
 
     def run_select(self, b):
         # si sélectionné ajoute curseur

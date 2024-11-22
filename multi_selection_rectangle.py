@@ -39,7 +39,6 @@ class multi_selection_rectangle(QgsMapTool):
             if r is not None:
                 lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
                 layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
-                self.main.selected = 1
         self.rubberBand.hide()
     
     # étends le rectangle jusqu'au curseur
