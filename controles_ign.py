@@ -251,7 +251,7 @@ class Controles_IGN:
         self.selectionButton.addAction(self.selecPoint)     
         self.selectionButton.addAction(self.selecRectangle)
         self.selectionButton.addAction(self.actionClear)
-        self.selectionButton.setDefaultAction(self.selecPoint)
+        self.selectionButton.setDefaultAction(self.selecRectangle)
 
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\see.jpg"
         self.add_action(
