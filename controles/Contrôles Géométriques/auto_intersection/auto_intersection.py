@@ -45,7 +45,7 @@ def auto_intersection(self, func):
                 self.iface.messageBar().pushMessage("Info", "Contrôle {} lancé".format(str(nom_controle)), level=Qgis.Info)
                 # récupère les paramètres si possible
                 # créé une barre de progrès avec pour total le nombre d'objets à faire, et en information supplémentaire le nombre de contrôle total à faire et le numéro de contrôle actif
-                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Cancel", 0, quantity)
+                bar = QProgressDialog("Contrôle {0} en cours\nContrôle {1}/{2}".format(str(nom_controle), int(self.controles_restants + 1), int(self.controles_actifs)), "Annuler", 0, quantity)
                 bar.setWindowModality(QtCore.Qt.WindowModal)
                 bar.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 # récupère les couches chargées et cochées sur qgis

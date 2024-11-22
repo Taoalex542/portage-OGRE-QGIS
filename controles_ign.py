@@ -243,7 +243,7 @@ class Controles_IGN:
                                                       u"Sélection Multiple avec Rectangle",
                                                       self.runRectangle)
         self.actionClear = self.creerAction(os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\annuler.png",
-                                                      u"Tout Déséléctionner",
+                                                      u"Tout Désélectionner",
                                                       self.clear,
                                                       checkable=False)
         self.tool = multi_selection_point(self.iface.mapCanvas(), self.selecPoint, self)
@@ -257,7 +257,7 @@ class Controles_IGN:
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\see.jpg"
         self.add_action(
             icon_path,
-            text=self.tr(u'Voir les contrôles'),
+            text=self.tr(u'Voire les contrôles'),
             callback=self.affichage_controles.show_controles,
             parent=self.iface.mainWindow())
         # will be set False in run()
