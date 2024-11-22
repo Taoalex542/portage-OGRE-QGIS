@@ -20,10 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox
-from qgis.core import QgsProject, Qgis
+from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox, QToolButton
+from qgis.core import QgsProject, Qgis, QgsMapLayer
 from datetime import datetime
 import os
 import importlib
@@ -31,6 +31,8 @@ from .gestion_couches import gestion_couches
 from .gestion_contrôles import gestion_controles
 from .recherche import recherche
 from .affichage_contrôles import affichage_controles
+from .multi_selection_point import multi_selection_point
+from .multi_selection_rectangle import multi_selection_rectangle
 import re
 
 # Initialize Qt resources from file resources.py
@@ -99,6 +101,8 @@ class Controles_IGN:
         self.organisation = []
         self.dynamic_import_from_src(os.path.dirname(os.path.realpath(__file__)) + "\\controles", False)
         self.gestion_controles.add_controls(False)
+        self.actionList = []
+        self.selected = 0
         # Créer sa propre toolbar sur QGIS
         self.toolbar = self.iface.addToolBar(u'Controles_IGN')
         self.toolbar.setObjectName(u'Controles_IGN')
@@ -198,6 +202,29 @@ class Controles_IGN:
 
         return action
 
+    def creerBouton(self, parent, text):
+        button = QToolButton(parent)
+        button.setObjectName(text)
+        button.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        button.setPopupMode(QToolButton.MenuButtonPopup)
+        parent.addWidget(button)
+        return button
+
+    def creerAction(self, icon_path, text, callback, checkable=True):
+        action = QAction(
+            QIcon(icon_path),
+            text,
+            self.iface.mainWindow())
+        # connect the action to the run method
+        action.setCheckable(checkable)
+        if checkable:
+            action.toggled.connect(callback)
+        else:
+            action.triggered.connect(callback)
+        self.iface.registerMainWindowAction(action, '')
+        self.actionList.append(action)
+        return action
+
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -207,6 +234,25 @@ class Controles_IGN:
             text=self.tr(u'Lancer fenêtre des contrôles'),
             callback=self.run,
             parent=self.iface.mainWindow())
+
+        self.selecPoint = self.creerAction(os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\point.jpg",
+                                            u"Multi Sélection par Point",
+                                            self.run_select)
+        self.selecRectangle = self.creerAction(os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\rectangle.png",
+                                                      u"Sélection Multiple avec Rectangle",
+                                                      self.runRectangle)
+        self.actionClear = self.creerAction(os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\annuler.png",
+                                                      u"Tout Déséléctionner",
+                                                      self.clear,
+                                                      checkable=False)
+        self.tool = multi_selection_point(self.iface.mapCanvas(), self.selecPoint, self) 
+        self.toolRectangle = multi_selection_rectangle(self.iface.mapCanvas(), self.selecRectangle, self)
+        self.selectionButton = self.creerBouton(self.toolbar, u'MultipleSelectionButton')
+        self.selectionButton.addAction(self.selecPoint)     
+        self.selectionButton.addAction(self.selecRectangle)
+        self.selectionButton.addAction(self.actionClear)
+        self.selectionButton.setDefaultAction(self.selecPoint)
+
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\see.jpg"
         self.add_action(
             icon_path,
@@ -277,6 +323,7 @@ class Controles_IGN:
             qinst.removeMapLayer(self.controlpoint_layer)
             self.control_layer_found = False
         self.controles_restants = 0
+        print(self.selected)
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore
@@ -384,6 +431,47 @@ class Controles_IGN:
                                 if controle not in self.organisation:
                                     self.organisation.append(controle)
         return
+    
+    def clear(self):
+        # ferme le bouton de séléction
+        try:
+            self.selectionButton.setDefaultAction(self.actionClear)
+        except:
+            pass
+        layers = self.iface.mapCanvas().layers()
+        # déséléctionne tous les objets
+        for layer in layers:
+            if layer.type() == QgsMapLayer.RasterLayer:
+                continue
+            layer.removeSelection()
+            print("clear")
+            self.selected = 0
+
+    def run_select(self, b):
+        # si sélectionné ajoute curseur
+        if b:
+            try:
+                self.selectionButton.setDefaultAction(self.selecPoint)
+            except:
+                pass
+            self.iface.mapCanvas().setMapTool(self.tool)
+        # si désélectionné: enlève curseur
+        else:
+            self.iface.mapCanvas().unsetMapTool(self.tool)
+
+    def runRectangle(self, b):
+        # si sélectionné ajoute curseur
+        if b:
+            try:
+                self.selectionButton.setDefaultAction(self.selecRectangle)
+            except:
+                pass
+            self.iface.mapCanvas().setMapTool(self.toolRectangle)
+        # si désélectionné: enlève curseur
+        else:
+            self.iface.mapCanvas().unsetMapTool(self.toolRectangle)
+            
+
 
 # PARTIE DE LANCEMENT DU CODE
 

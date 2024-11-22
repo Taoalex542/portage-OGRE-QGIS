@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit, QgsMapLayer
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
@@ -85,13 +85,19 @@ def attributs(self, func):
                 allLayers = QgsProject.instance().mapLayers().values()
                 # parcours des couches
                 for layers in allLayers:
+                    if layers.type() == QgsMapLayer.RasterLayer:
+                        continue
                     # parcours la liste actuelle des couches
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                             pos = get_value_pos(parametres, layers.fields().names())
                             # récupère les informations des couches
-                            for f in layers.getFeatures():
+                            if self.selected == 1:
+                                layer = layers.selectedFeatures()
+                            else:
+                                layer = layers.getFeatures()
+                            for f in layer:
                                 # mets a jour le progrès de la bar de progrès
                                 geom = f.geometry()
                                 for part in geom.parts():

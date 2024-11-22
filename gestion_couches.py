@@ -1,5 +1,5 @@
 from qgis.PyQt.QtWidgets import QTreeWidgetItem, QDockWidget
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsMapLayer
 import qgis
 from sip import delete
 from .resources import *
@@ -417,8 +417,6 @@ class gestion_couches(QDockWidget):
     def precis_add_layers(self):
         self.main.total_sub_groups = 0
         self.get_tree_size()
-        if (self.main.total_sub_groups > 1):
-            return
         self.main.dlg_precis.treeWidget.setHeaderHidden(True)
         allLayers = QgsProject.instance().layerTreeRoot().children()
         # copie le tableau self.main.couche_list si il existe
@@ -429,6 +427,8 @@ class gestion_couches(QDockWidget):
         for i in self.main.dlg_precis.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         # ajoute les couches dans le treeView
         for i in allLayers:
+            if layer.type() == QgsMapLayer.RasterLayer:
+                continue
             if(type(i) == qgis._core.QgsLayerTreeLayer):
                 if i.name() == self.main.controlpoint_layer_name:
                     self.main.control_layer_found = True

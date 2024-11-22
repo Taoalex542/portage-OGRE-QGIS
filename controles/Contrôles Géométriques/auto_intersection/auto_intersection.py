@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsWkbTypes, QgsFeature, QgsPointXY, edit, QgsMapLayer
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
@@ -53,12 +53,18 @@ def auto_intersection(self, func):
                 prev = []
                 # parcours des couches
                 for layers in allLayers:
+                    if layers.type() == QgsMapLayer.RasterLayer:
+                        continue
                     # parcours la liste actuelle des couches
                     for items in self.couche_list:
                         # si la couche est présente dans la liste et qu'elle est cochée 
                         if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                             # récupère les informations des couches
-                            for f in layers.getFeatures():
+                            if self.selected == 1:
+                                layer = layers.selectedFeatures()
+                            else:
+                                layer = layers.getFeatures()
+                            for f in layer:
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
