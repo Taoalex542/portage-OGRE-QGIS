@@ -245,11 +245,11 @@ class Controles_IGN:
                                                       u"Tout Déséléctionner",
                                                       self.clear,
                                                       checkable=False)
-        self.tool = multi_selection_point(self.iface.mapCanvas(), self.selecPoint, self) 
+        self.tool = multi_selection_point(self.iface.mapCanvas(), self.selecPoint, self)
         self.toolRectangle = multi_selection_rectangle(self.iface.mapCanvas(), self.selecRectangle, self)
         self.selectionButton = self.creerBouton(self.toolbar, u'MultipleSelectionButton')
-        self.selectionButton.addAction(self.selecPoint)     
         self.selectionButton.addAction(self.selecRectangle)
+        self.selectionButton.addAction(self.selecPoint)
         self.selectionButton.addAction(self.actionClear)
         self.selectionButton.setDefaultAction(self.selecRectangle)
 
