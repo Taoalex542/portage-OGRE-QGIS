@@ -67,7 +67,11 @@ def get_quantity(self):
             # si la couche est cochée
             if layers.name() == items[0] and items[2] == QtCore.Qt.Checked: #(QtCore.Qt.Checked == 2)
                 # récupère les informations des couches
-                for f in layers.getFeatures():
+                if self.selected == 1:
+                    layer = layers.selectedFeatures()
+                else:
+                    layer = layers.getFeatures()
+                for f in layer:
                     geom = f.geometry()
                     for part in geom.parts():
                         if ("LineString" in QgsWkbTypes.displayString(part.wkbType())):
