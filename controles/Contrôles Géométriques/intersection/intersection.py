@@ -204,11 +204,15 @@ def intersection(self, func):
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                     # lance le controle rebroussement
                                     for otherLayers in allLayers:
-                                        if layers.type() == QgsMapLayer.RasterLayer:
+                                        if otherLayers.type() == QgsMapLayer.RasterLayer:
                                             continue
                                         if otherLayers.name() not in self.precis_intersection:
                                             continue
-                                        for otherf in otherLayers.getFeatures():
+                                        if self.selected == 1:
+                                            olayer = otherLayers.selectedFeatures()
+                                        else:
+                                            olayer = otherLayers.getFeatures()
+                                        for otherf in olayer:
                                             otherAttributs = otherf.attributes()
                                             otherGeom = otherf.geometry()
                                             for otherPart in otherGeom.parts():
