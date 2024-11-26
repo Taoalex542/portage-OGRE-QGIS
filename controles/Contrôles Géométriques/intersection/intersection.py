@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit, QgsMapLayer
+from qgis.core import QgsGeometry, QgsProject, Qgis, QgsFeature, QgsPointXY, edit, QgsMapLayer, QgsWkbTypes
 from qgis import QtCore
 from qgis.PyQt.QtWidgets import QProgressDialog
 import re
@@ -123,7 +123,8 @@ def get_quantity(self):
                 for f in layer:
                     geom = f.geometry()
                     for part in geom.parts():
-                        quantity += 1
+                        if ("Point" not in QgsWkbTypes.displayString(part.wkbType())):
+                            quantity += 1
     return quantity
 
 # récupère le nombre de tuples nécéssaire
@@ -197,6 +198,8 @@ def intersection(self, func):
                                 geom = f.geometry()
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
+                                    if ("Point" in QgsWkbTypes.displayString(part.wkbType())):
+                                        continue
                                     # mets a jour le progrès de la bar de progrès
                                     bar.setValue(items_done)
                                     # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
@@ -217,6 +220,8 @@ def intersection(self, func):
                                             otherGeom = otherf.geometry()
                                             for otherPart in otherGeom.parts():
                                                 if (layers.name() == otherLayers.name() and otherf.id() < f.id()):
+                                                    continue
+                                                if ("Point" in QgsWkbTypes.displayString(part.wkbType())):
                                                     continue
                                                 othernums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherPart.asWkt())
                                                 othercoords = tuple(zip(*[map(float, othernums)] * nb_for_tuple(self, otherPart.asWkt())))
