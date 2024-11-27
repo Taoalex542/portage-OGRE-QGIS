@@ -15,7 +15,7 @@ pour appeler ce controle dans le lancement des controles du plugin, il suffit d'
 la suite de ce fichier txt parlera du quel fichier fait quoi, et de choses importantes à savoir sur l'utilisation de ces fichiers
 
 param.txt :
-ce fichier est le fochier de paramètres, il contient 4 lignes obligatoires, le reste des lignes seront considérées en tant que paramètres
+ce fichier est le fichier de paramètres, il contient 4 lignes obligatoires, le reste des lignes seront considérées en tant que paramètres
 la ligne 1 définit si le contrôle est pour une réconcilliation si une erreur trouvée par ce contrôle est présente
 la ligne 2 définit si le controle doit etre lancé au moins une fois avant de pouvoir réconcillier
 la ligne 3 est l'importance du contrôle, avec 0 étant le plus important, et plus le chiffre est élevé, moin le contrôle est important
@@ -39,14 +39,18 @@ exemple.py :
 ce fichier est ce qui permet au contrôle de communiquer avec le plugin et QGIS, il est composé en deux parties principales: la fonction read() et la fonction exemple()
 
 read() lit le fichiers param.txt et récupère les paramètres entrés.
-actuellement il récupère le chiffre entré et vérifie si il n'est pas plus grand que 50
+actuellement il récupère le chiffre entré avec un regex, et vérifie si il n'est pas plus grand que 50
 si le chiffre entré est plus grand que 50, il renvoie la valeur par défaut (ici 10)
+cette fonction peut lire et extraire autant de paramètres que possible, il suffit juste d'écrire une fonction pour les récuperer
+il est important de noter que les paramètres du controle doivent commencer à la 4eme ligne et non avant à cause le la lecture des paramètre de profil du contrôle
+chaque contrôle peut avoir une gestion de parametrage unique
 
 exemple() est la fonction qui parcours les couches et les controles unes par unes
-cette fonction regarde actuellement seulement les couches de type lignes, pour changer cela, il suffit de modifier "if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):" dans la fontion exemple() et la fonction get_quantity()
-il existe trois types de géométrie:
+actuellement, cette fonction ne regarde seulement les couches de type lignes, pour changer cela, il suffit de modifier "if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):" dans la fontion exemple() et la fonction get_quantity()
+il existe 3 types de géométrie:
     - Point
     - LineString
     - Polygon
+il est possible d'enlever cette condition et de travailler sur toutes les couches au lieu de juste certains types
 la fonction ne travaille que sur les objerts séléctionnés si il en existe.
 si une erreur est trouvée, la fonction édite la couche des points de controles et y ajoute le nouveau controle.
