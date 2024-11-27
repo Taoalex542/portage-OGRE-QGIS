@@ -24,6 +24,11 @@ def get_params(self):
     temp = []
     todo = []
     line_number = 0
+    # active les objets qui étaient activés avant
+    for things in self.temp_intersection:
+        if not isinstance(things, list):
+            for objects in self.dlg_precis.treeWidget.findItems(things, QtCore.Qt.MatchRecursive):
+                objects.setCheckState(0, 2)
     # lis le fichier
     if os.path.isfile(filename):
         f = open(filename)

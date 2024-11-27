@@ -104,6 +104,7 @@ class Controles_IGN:
         self.actionList = []
         self.selected = 0
         self.shift = 0
+        self.temp_intersection = []
         # Créer sa propre toolbar sur QGIS
         self.toolbar = self.iface.addToolBar(u'Controles_IGN')
         self.toolbar.setObjectName(u'Controles_IGN')
@@ -327,6 +328,7 @@ class Controles_IGN:
             self.iface.messageBar().clearWidgets()
             self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=10)
             return
+        self.temp_intersection = self.precis_intersection
         if self.affichage_controles.get_total_controles() != 0:
             qinst = QgsProject.instance()
             qinst.removeMapLayer(self.controlpoint_layer)
