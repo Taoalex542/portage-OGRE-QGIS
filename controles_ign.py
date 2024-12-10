@@ -38,7 +38,7 @@ import re
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis
+from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer
 import os.path
 
 
@@ -84,6 +84,8 @@ class Controles_IGN:
         self.dlg_trop.setFixedSize(self.dlg_trop.size())
         self.dlg_precis = choix_precis()
         self.dlg_precis.setFixedSize(self.dlg_precis.size())
+        self.lancer = lancer()
+        self.lancer.setFixedSize(self.lancer.size())
         self.couche_list = []
         self.controles_actifs = 0
         self.controles_restants = 0
@@ -363,6 +365,11 @@ class Controles_IGN:
                 layer = layers.selectedFeatures()
                 for f in layer:
                     self.rec.append(f.geometry())
+        if (self.rec == [] and self.selected == 0) :
+            if(not self.lancer.exec()) :
+                self.iface.messageBar().clearWidgets()
+                self.iface.messageBar().pushMessage("Info", "Contrôles annulés", level=Qgis.Info, duration=10)
+                return
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore
@@ -534,6 +541,7 @@ class Controles_IGN:
             self.dlg_couches.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
             self.dlg_precis.check_all.button(QDialogButtonBox.YesToAll).setText("Tout cocher")
             self.dlg_precis.uncheck_all.button(QDialogButtonBox.NoToAll).setText("Tout déocher")
+            self.lancer.buttonBox.button(QDialogButtonBox.Ok).setText("Lancer")
             self.dlg.coucheButton.clicked.connect(self.gestion_couches.choix_couches)
             self.dlg.controleButton.clicked.connect(self.gestion_controles.choix_controles)
             self.dlg_controles.buttonBox.clicked.connect(self.gestion_controles.update_control_boxes)
