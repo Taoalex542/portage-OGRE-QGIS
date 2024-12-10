@@ -219,27 +219,24 @@ def intersection(self, func):
                                         continue
                                     # mets a jour le progrès de la bar de progrès
                                     bar.setValue(items_done)
-                                    # parse le WKT de la géométrie pour avoir accès a chaque chiffre en tant que floats
-                                    nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
-                                    coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
-                                    # lance le controle rebroussement
                                     for otherLayers in allLayers:
                                         if otherLayers.type() == QgsMapLayer.RasterLayer:
                                             continue
                                         if otherLayers.name() not in self.precis_intersection:
                                             continue
-                                        if self.selected == 1:
-                                            olayer = otherLayers.selectedFeatures()
-                                        else:
-                                            olayer = otherLayers.getFeatures()
+                                        olayer = otherLayers.getFeatures()
                                         for otherf in olayer:
                                             otherAttributs = otherf.attributes()
                                             otherGeom = otherf.geometry()
+                                            if geom.distance(otherGeom) > 500:
+                                                continue
                                             for otherPart in otherGeom.parts():
                                                 if (layers.name() == otherLayers.name() and otherf.id() < f.id()):
                                                     continue
                                                 if ("Point" in QgsWkbTypes.displayString(part.wkbType())):
                                                     continue
+                                                nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
+                                                coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
                                                 othernums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', otherPart.asWkt())
                                                 othercoords = tuple(zip(*[map(float, othernums)] * nb_for_tuple(self, otherPart.asWkt())))
                                                 parametres = []
