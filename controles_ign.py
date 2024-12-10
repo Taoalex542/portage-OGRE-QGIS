@@ -22,7 +22,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox, QToolButton
+from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox, QToolButton, QMenu
 from qgis.core import QgsProject, Qgis, QgsMapLayer
 from datetime import datetime
 import os
@@ -228,10 +228,12 @@ class Controles_IGN:
         return action
 
     def initGui(self):
+        # will be set False in run()
+        self.first_start = True
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\ign.jpg"
-        self.add_action(
+        self.main = self.add_action(
             icon_path,
             text=self.tr(u'Lancer fenêtre des contrôles'),
             callback=self.run,
@@ -256,14 +258,30 @@ class Controles_IGN:
         self.selectionButton.setDefaultAction(self.selecRectangle)
 
         icon_path = os.path.dirname(os.path.realpath(__file__)) + "\\resources_img\\see.jpg"
-        self.add_action(
+        self.voir = self.add_action(
             icon_path,
-            text=self.tr(u'Voire les contrôles'),
+            text=self.tr(u'Voir les contrôles'),
             callback=self.affichage_controles.show_controles,
             parent=self.iface.mainWindow())
-        # will be set False in run()
-        self.first_start = True
 
+        self.menuIGN = self.iface.mainWindow().findChild(QMenu, "IGN")
+        menuBar = self.iface.mainWindow().menuBar()
+        if self.menuIGN:
+            self.menuIGN.setSeparatorsCollapsible(True)
+            self.menuIGN.addSeparator()
+            self.menuIGN.addAction(self.main)
+            self.menuIGN.addAction(self.voir)
+            self.menuIGN.setSeparatorsCollapsible(False)
+        else:
+            self.menuIGN = QMenu(self.iface.mainWindow())
+            self.menuIGN.setObjectName("IGN")
+            self.menuIGN.setTitle("IGN")
+            self.menuIGN.setSeparatorsCollapsible(True)
+            self.menuIGN.addSeparator()
+            self.menuIGN.addAction(self.main)
+            self.menuIGN.addAction(self.voir)
+            self.menuIGN.setSeparatorsCollapsible(False)
+            menuBar.insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.menuIGN)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -272,6 +290,7 @@ class Controles_IGN:
                 self.tr(u'&Controles_IGN'),
                 action)
             self.iface.removeToolBarIcon(action)
+        self.menuIGN.deleteLater()
 
 
 # PARTIE PLUGIN
