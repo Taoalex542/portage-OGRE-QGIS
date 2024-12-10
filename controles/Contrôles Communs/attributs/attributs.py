@@ -40,6 +40,8 @@ def get_quantity(self):
                     layer = layers.getFeatures()
                 for f in layer:
                     geom = f.geometry()
+                    if reconciliation(self, geom) == 2:
+                        continue
                     for part in geom.parts():
                             quantity += 1
     return quantity
@@ -64,6 +66,14 @@ def nb_for_tuple(self, str):
             nb += 1
         i += 1
     return nb
+
+def reconciliation(self, geom):
+    if (self.rec == []):
+        return 1
+    for zones in self.rec:
+        if geom.intersects(zones):
+            return 0
+    return 2
 
 # execution du controle
 def attributs(self, func):
@@ -104,6 +114,8 @@ def attributs(self, func):
                             for f in layer:
                                 # mets a jour le progrès de la bar de progrès
                                 geom = f.geometry()
+                                if reconciliation(self, geom) == 2:
+                                    continue
                                 for part in geom.parts():
                                     attributs = f.attributes()
                                     bar.setValue(int(items_done))

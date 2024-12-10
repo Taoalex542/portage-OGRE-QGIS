@@ -20,6 +20,8 @@ def get_quantity(self):
                     layer = layers.getFeatures()
                 for f in layer:
                     geom = f.geometry()
+                    if reconciliation(self, geom) == 2:
+                        continue
                     for part in geom.parts():
                         if ("LineString" in QgsWkbTypes.displayString(part.wkbType()) or "Polygon" in QgsWkbTypes.displayString(part.wkbType())):
                             quantity += 1
@@ -33,6 +35,14 @@ def nb_for_tuple(self, str):
             nb += 1
         i += 1
     return nb
+
+def reconciliation(self, geom):
+    if (self.rec == []):
+        return 1
+    for zones in self.rec:
+        if geom.intersects(zones):
+            return 0
+    return 2
 
 # execution du controle
 def auto_intersection(self, func):
@@ -71,6 +81,8 @@ def auto_intersection(self, func):
                             for f in layer:
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
+                                if reconciliation(self, geom) == 2:
+                                    continue
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     # mets a jour le progrès de la bar de progrès

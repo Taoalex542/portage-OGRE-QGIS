@@ -127,6 +127,8 @@ def get_quantity(self):
                     layer = layers.getFeatures()
                 for f in layer:
                     geom = f.geometry()
+                    if reconciliation(self, geom) == 2:
+                        continue
                     for part in geom.parts():
                         if ("Point" not in QgsWkbTypes.displayString(part.wkbType())):
                             quantity += 1
@@ -163,6 +165,14 @@ def get_value_pos(param, names):
     if nb == len(names) - 1:
         nb = None
     return nb
+
+def reconciliation(self, geom):
+    if (self.rec == []):
+        return 1
+    for zones in self.rec:
+        if geom.intersects(zones):
+            return 0
+    return 2
 
 # execution du controle
 def intersection(self, func):
@@ -201,6 +211,8 @@ def intersection(self, func):
                                 attributs = f.attributes()
                                 # récupère la géométrie dans ces infos
                                 geom = f.geometry()
+                                if reconciliation(self, geom) == 2:
+                                    continue
                                 # récupère les informations nécéssaires dans la géométrie tel que le nom, le type, et les points
                                 for part in geom.parts():
                                     if ("Point" in QgsWkbTypes.displayString(part.wkbType())):

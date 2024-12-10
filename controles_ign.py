@@ -23,7 +23,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox, QToolButton, QMenu
-from qgis.core import QgsProject, Qgis, QgsMapLayer
+from qgis.core import QgsMapLayer, QgsPointXY, QgsRectangle, QgsWkbTypes, QgsProject, Qgis 
 from datetime import datetime
 import os
 import importlib
@@ -290,7 +290,6 @@ class Controles_IGN:
                 self.tr(u'&Controles_IGN'),
                 action)
             self.iface.removeToolBarIcon(action)
-        self.menuIGN.deleteLater()
 
 
 # PARTIE PLUGIN
@@ -324,6 +323,8 @@ class Controles_IGN:
     def has_selected(self):
         allLayers = QgsProject.instance().mapLayers().values()
         for layers in allLayers:
+            if layers.name() == "zone_de_réconciliation":
+                continue
             layer = layers.selectedFeatures()
             if layer != []:
                 return 1
@@ -354,6 +355,14 @@ class Controles_IGN:
             self.control_layer_found = False
         self.controles_restants = 0
         self.selected = self.has_selected()
+        self.rec = []
+        allLayers = QgsProject.instance().mapLayers().values()
+        for layers in allLayers:
+            if layers.name() == "zone_de_réconciliation":
+                # récupère les informations des couches
+                layer = layers.selectedFeatures()
+                for f in layer:
+                    self.rec.append(f.geometry())
         # lance le controle si les deux fichiers sont chargés (ceci est la seule partie non automatique pour lancer les controles, il suffit de remplacer le mot "intersection" avec le controle voulu pour ajouter le controle dans les lancements)
         if ("intersection.py" in self.loaded_controles and "ctrl_intersection.py" in self.loaded_controles):
             intersection.intersection(self, ctrl_intersection.ctrl_intersection) #type: ignore

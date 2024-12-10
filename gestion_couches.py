@@ -198,6 +198,8 @@ class gestion_couches(QDockWidget):
         for i in self.main.dlg_couches.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         # ajoute les couches dans le treeView
         for i in allLayers:
+            if i.name() == "zone_de_réconciliation":
+                continue
             if(type(i) == qgis._core.QgsLayerTreeLayer):
                 if i.name() == self.main.controlpoint_layer_name:
                     self.main.control_layer_found = True
@@ -427,6 +429,8 @@ class gestion_couches(QDockWidget):
         for i in self.main.dlg_precis.treeWidget.findItems("", QtCore.Qt.MatchContains , 0): delete(i)
         # ajoute les couches dans le treeView
         for i in allLayers:
+            if i.name() == "zone_de_réconciliation":
+                continue
             if(type(i) == qgis._core.QgsLayerTreeLayer):
                 if i.name() == self.main.controlpoint_layer_name:
                     self.main.control_layer_found = True
