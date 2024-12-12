@@ -61,6 +61,8 @@ class affichage_controles(QDockWidget):
     # formate les valeurs de la cinquème colone pour avoir le nom devant les valeurs, et avoir le bon format des dates
     def add_names_to_values(self, data):
         list = ""
+        if data == None:
+            return "c'est pas censé être vide, la géométrie contrôlée n'a pas d'infos"
         for i in range (len(data[0])):
             string = str(data[1][i])
             string += ": "

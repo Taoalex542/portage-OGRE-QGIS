@@ -52,11 +52,14 @@ def get_params(self):
                 self.iface.messageBar().pushMessage("Attention", "Erreur dans le parsage de la ligne {} du paramétrage: cette ligne sera ignorée".format(i + 3), level=Qgis.Warning, duration=10)
                 continue
             # récupère les attributs du parent
+            attributs = None
             for layers in QgsProject.instance().mapLayers().values():
                 if layers.name() == parent[0]:
                     attributs = layers.fields().names()
                     break
-            # si l'attribut voulu n'a pas été trouvé 
+            # si l'attribut voulu n'a pas été trouvé
+            if attributs == None:
+                continue
             if lparent == 2 and parent[1] not in attributs:
                 self.iface.messageBar().pushMessage("Attention", "Attribut {} pour la variable {} non trouvé dans la ligne {} du paramétrage: cette ligne sera ignorée".format(parent[1], parent[0], i + 3), level=Qgis.Warning, duration=10)
                 continue
@@ -233,7 +236,7 @@ def intersection(self, func):
                                             for otherPart in otherGeom.parts():
                                                 if (layers.name() == otherLayers.name() and otherf.id() < f.id()):
                                                     continue
-                                                if ("Point" in QgsWkbTypes.displayString(part.wkbType())):
+                                                if ("Point" in QgsWkbTypes.displayString(otherPart.wkbType())):
                                                     continue
                                                 nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                                 coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement

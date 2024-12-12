@@ -41,9 +41,9 @@ def seg_intersect(p1, p2, p3, p4):
         return None
     x = x1 + ua * (x2-x1)
     y = y1 + ua * (y2-y1)
-    if (p1[0] == p3[0] and p1[1] == p3[1]
-        or p4[0] == p2[0] and p4[1] == p2[1]
-        or p1[0] == p4[0] and p4[1] == p1[1]
-        or p2[0] == p3[0] and p3[1] == p2[1]):
+    if (x1 == x3 and y1 == y3
+        or x4 == x2 and y4 == y2
+        or x1 == x4 and y4 == y1
+        or x2 == x3 and y3 == y2):
         return None
     return (x,y)

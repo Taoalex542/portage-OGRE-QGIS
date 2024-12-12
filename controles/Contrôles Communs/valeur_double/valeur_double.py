@@ -76,11 +76,11 @@ def reconciliation(self, geom):
     return 2
 
 # execution du controle
-def attributs(self, func):
-    nom_controle = "attributs"
+def valeur_double(self, func):
+    nom_controle = "valeur double"
     done = []
-    for item in self.dlg_controles.treeWidget.findItems("attributs", QtCore.Qt.MatchRecursive):
-        # vérifie si le contrôle "attributs" est coché et si il existe des objets de type Ligne
+    for item in self.dlg_controles.treeWidget.findItems("valeur double", QtCore.Qt.MatchRecursive):
+        # vérifie si le contrôle "valeur_double" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
             items_done = 0
             quantity = get_quantity(self)
@@ -123,6 +123,8 @@ def attributs(self, func):
                                         if otherf.id() < f.id():
                                             continue
                                         other_attributs = otherf.attributes()
+                                        if (len(attributs) == 1 or len(other_attributs) == 1):
+                                            continue
                                         othergeom = otherf.geometry()
                                         for otherpart in othergeom.parts():
                                             temp = func(attributs[pos], other_attributs[pos], f.id(), otherf.id())

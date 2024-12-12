@@ -320,6 +320,8 @@ class Controles_IGN:
                 self.dlg_couches.lineEdit.setText(otext)
                 return [None]
         self.dlg_couches.lineEdit.setText(otext)
+        if temp == []:
+            return [None]
         return temp
     
     def has_selected(self):
@@ -377,9 +379,10 @@ class Controles_IGN:
             rebroussement.rebroussement(self, ctrl_rebroussement.ctrl_rebroussement) #type: ignore
         if ("auto_intersection.py" in self.loaded_controles and "ctrl_auto_intersection.py" in self.loaded_controles):
             auto_intersection.auto_intersection(self, ctrl_auto_intersection.ctrl_auto_intersection) #type: ignore
-        if ("attributs.py" in self.loaded_controles and "ctrl_attributs.py" in self.loaded_controles):
-            attributs.attributs(self, ctrl_attributs.ctrl_attributs) #type: ignore
-
+        if ("valeur_double.py" in self.loaded_controles and "ctrl_valeur_double.py" in self.loaded_controles):
+            valeur_double.valeur_double(self, ctrl_valeur_double.ctrl_valeur_double) #type: ignore
+        if ("doublon.py" in self.loaded_controles and "ctrl_doublon.py" in self.loaded_controles):
+            doublon.doublon(self, ctrl_doublon.ctrl_doublon) #type: ignore
 
         # informe l'utilisateur que les contrôles sont terminés
         widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
