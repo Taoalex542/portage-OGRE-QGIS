@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Controles_IGNDialogBase</class>
- <widget class="QDialog" name="Controles_IGNDialogBase">
+ <class>SHRECDialogBase</class>
+ <widget class="QDialog" name="SHRECDialogBase">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -68,7 +68,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>accepted()</signal>
-   <receiver>Controles_IGNDialogBase</receiver>
+   <receiver>SHRECDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -84,7 +84,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>rejected()</signal>
-   <receiver>Controles_IGNDialogBase</receiver>
+   <receiver>SHRECDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

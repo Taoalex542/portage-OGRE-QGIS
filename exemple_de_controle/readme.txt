@@ -7,7 +7,7 @@ pour ce plugin, un controle est composé de 3 fichiers:
 
 pour faire un nouveau controle, il suffit de remplacer le mot exemple présent dans ces fichier ainsi que leur nom et ils seront utilisables automatiquement
 
-pour appeler ce controle dans le lancement des controles du plugin, il suffit d'ajouter ces deux lignes de code dans la fonction run_controls() située dans le fichier controles_ign.py:
+pour appeler ce controle dans le lancement des controles du plugin, il suffit d'ajouter ces deux lignes de code dans la fonction run_controls() située dans le fichier SHREC.py:
         if ("exemple.py" in self.loaded_controles and "ctrl_exemple.py" in self.loaded_controles):
             exemple.exemple(self, ctrl_exemple.ctrl_exemple)
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- Controles_IGN
+ Système Hybride des Reconciliations, Extractions et Contrôles
                                  A QGIS plugin
  Plugin pour controller les géométries
                               -------------------
@@ -38,11 +38,11 @@ import re
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .controles_ign_dialog import Controles_IGNDialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer
+from .SHREC_dialog import SHREC_Dialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer
 import os.path
 
 
-class Controles_IGN:
+class SHREC:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -62,7 +62,7 @@ class Controles_IGN:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'Controles_IGN_{}.qm'.format(locale))
+            'SHREC_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -71,8 +71,8 @@ class Controles_IGN:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Controles_IGN')
-        self.dlg = Controles_IGNDialog()
+        self.menu = self.tr(u'&Système Hybride des Reconciliations, Extractions et Contrôles')
+        self.dlg = SHREC_Dialog()
         self.dlg.setFixedSize(self.dlg.size())
         self.dlg_couches = choix_couche()
         self.dlg_couches.setFixedSize(self.dlg_couches.size())
@@ -93,7 +93,7 @@ class Controles_IGN:
         self.controlpoint_layer = None
         self.control_layer_found = False
         self.voir_clicked = False
-        self.controlpoint_layer_name = "controles_IGN_" + datetime.today().strftime('%d_%m_%Y')
+        self.controlpoint_layer_name = "SHREC_" + datetime.today().strftime('%d_%m_%Y')
         self.total_sub_groups = 0
         self.gestion_couches = gestion_couches(self, self.iface)
         self.gestion_controles = gestion_controles(self, self.iface)
@@ -108,8 +108,8 @@ class Controles_IGN:
         self.shift = 0
         self.temp_intersection = []
         # Créer sa propre toolbar sur QGIS
-        self.toolbar = self.iface.addToolBar(u'Controles_IGN')
-        self.toolbar.setObjectName(u'Controles_IGN')
+        self.toolbar = self.iface.addToolBar(u'SHREC')
+        self.toolbar.setObjectName(u'SHREK')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -129,7 +129,7 @@ class Controles_IGN:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('Controles_IGN', message)
+        return QCoreApplication.translate('SHREK', message)
 
 
     def add_action(
@@ -289,7 +289,7 @@ class Controles_IGN:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Controles_IGN'),
+                self.tr(u'&SHREC'),
                 action)
             self.iface.removeToolBarIcon(action)
 
@@ -385,7 +385,7 @@ class Controles_IGN:
             doublon.doublon(self, ctrl_doublon.ctrl_doublon) #type: ignore
 
         # informe l'utilisateur que les contrôles sont terminés
-        widget = self.iface.messageBar().createMessage("Contrôles_IGN", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
+        widget = self.iface.messageBar().createMessage("SHREC", "Contrôles terminés, {} erreurs trouvées".format(int(self.affichage_controles.get_total_controles())))
         button = QPushButton(widget)
         button.setText("Montre Moi")
         button.pressed.connect(self.affichage_controles.show_controles)
@@ -470,7 +470,7 @@ class Controles_IGN:
                     self.get_info([int(d) for d in re.findall(r'-?\d+', f.readline().replace("\n", ""))], "actif", path, controle)
                     f.close()
                 for i in range(split_len):
-                    if (temp[i] == "Contrôles_IGN"):
+                    if (temp[i] == "SHREC"):
                         for j in range(split_len - i):
                             if (".py" in temp[j + i]):
                                 k = 1

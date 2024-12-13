@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- Controles_IGNDialog
+ SHRECDialog
                                  A QGIS plugin
  Plugin pour controller les géométries
                              -------------------
@@ -28,13 +28,13 @@ from qgis.PyQt import QtWidgets
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'ui/controles_ign_dialog_base.ui'))
+    os.path.dirname(__file__), 'ui/SHREC_dialog_base.ui'))
 
 
-class Controles_IGNDialog(QtWidgets.QDialog, FORM_CLASS):
+class SHREC_Dialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
-        super(Controles_IGNDialog, self).__init__(parent)
+        super(SHRECDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see

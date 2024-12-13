@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- Controles_IGN
+ SHREC
                                  A QGIS plugin
  Plugin pour controller les géométries
                              -------------------
@@ -25,11 +25,11 @@
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load Controles_IGN class from file Controles_IGN.
+    """Load SHREC class from file SHREC.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .controles_ign import Controles_IGN
-    return Controles_IGN(iface)
+    from .SHREC import SHREC
+    return SHREC(iface)
