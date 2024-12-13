@@ -81,6 +81,9 @@ class gestion_controles(QDockWidget):
     def check_control_boxes(self):
         self.global_control_edit(QtCore.Qt.Checked)
     def uncheck_control_boxes(self):
+        self.main.dialog += 1
+        if (self.main.dialog == 10):
+            self.main.dlg_dialog.show()
         self.global_control_edit(QtCore.Qt.Unchecked)
 
     # ajoute les groupes dans la liste control_list

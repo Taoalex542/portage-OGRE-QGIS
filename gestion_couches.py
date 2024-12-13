@@ -60,6 +60,9 @@ class gestion_couches(QDockWidget):
     def check_layer_boxes(self):
         self.global_checkbox_edit(QtCore.Qt.Checked)
     def uncheck_layer_boxes(self):
+        self.main.dialog += 1
+        if (self.main.dialog == 10):
+            self.main.dlg_dialog.show()
         self.global_checkbox_edit(QtCore.Qt.Unchecked)
 
     # mets a jour les checkbox pour les couches

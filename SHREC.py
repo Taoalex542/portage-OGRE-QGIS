@@ -23,7 +23,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QPushButton, QDialogButtonBox, QToolButton, QMenu
-from qgis.core import QgsMapLayer, QgsPointXY, QgsRectangle, QgsWkbTypes, QgsProject, Qgis 
+from qgis.core import QgsMapLayer, QgsProject, Qgis 
 from datetime import datetime
 import os
 import importlib
@@ -38,7 +38,7 @@ import re
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .SHREC_dialog import SHREC_Dialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer
+from .SHREC_dialog import SHREC_Dialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer, dialog
 import os.path
 
 
@@ -82,6 +82,8 @@ class SHREC:
         self.dlg_pas = pas_controles()
         self.dlg_trop = trop_de_couches()
         self.dlg_trop.setFixedSize(self.dlg_trop.size())
+        self.dlg_dialog = dialog()
+        self.dlg_dialog.setFixedSize(self.dlg_dialog.size())
         self.dlg_precis = choix_precis()
         self.dlg_precis.setFixedSize(self.dlg_precis.size())
         self.lancer = lancer()
@@ -91,6 +93,7 @@ class SHREC:
         self.controles_restants = 0
         self.couches_actives = 0
         self.controlpoint_layer = None
+        self.dialog = 0
         self.control_layer_found = False
         self.voir_clicked = False
         self.controlpoint_layer_name = "SHREC_" + datetime.today().strftime('%d_%m_%Y')
