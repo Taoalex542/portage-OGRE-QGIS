@@ -5,12 +5,12 @@
 [general]
 name=Système Hybride des Reconciliations, Extractions et Contrôles
 qgisMinimumVersion=3.0
-description=Plugin pour controller les géométries
+description=Plugin pour contrôler les géométries
 version=1.0.0
 author=Ta'o D
 email=ta-o.darbellay@ign.fr
 
-about=Plugin pour controller les géométries
+about=Plugin pour contrôler les géométries
 
 repository=https://github.com/Taoalex542/portage-OGRE-QGIS
 # End of mandatory metadata
