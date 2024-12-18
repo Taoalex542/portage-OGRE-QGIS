@@ -44,9 +44,15 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def auto_intersection(self, func):
     nom_controle = "auto intersection"
+    importance = get_att(self, "auto_intersection")
     for item in self.dlg_controles.treeWidget.findItems("auto intersection", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "auto_intersection" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -104,7 +110,7 @@ def auto_intersection(self, func):
                                                 test.append(layers.fields().names())
                                                 ctrl = QgsFeature()
                                                 ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                ctrl.setAttributes(["Géométrie", "auto_intersection", layers.name(), test])
+                                                ctrl.setAttributes([importance, "Géométrie", "auto_intersection", layers.name(), test])
                                                 self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                 self.controlpoint_layer.updateExtents()
                                     temp = []

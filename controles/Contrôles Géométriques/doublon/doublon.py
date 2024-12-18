@@ -45,9 +45,15 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def doublon(self, func):
     nom_controle = "doublon"
+    importance = get_att(self, "doublon")
     for item in self.dlg_controles.treeWidget.findItems("doublon", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "doublon" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -116,7 +122,7 @@ def doublon(self, func):
                                                         test.append(layers.fields().names())
                                                         ctrl = QgsFeature()
                                                         ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                        ctrl.setAttributes(["Géométrie", "{} identifiant {} et {} sont des doublons".format(layers.name(), f.id(), otherf.id()), layers.name(), test])
+                                                        ctrl.setAttributes([importance, "Géométrie", "{} identifiant {} et {} sont des doublons".format(layers.name(), f.id(), otherf.id()), layers.name(), test])
                                                         self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                         self.controlpoint_layer.updateExtents()
                                     items_done += 1

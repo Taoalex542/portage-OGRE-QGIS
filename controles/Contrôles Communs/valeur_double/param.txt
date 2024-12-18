@@ -1,5 +1,5 @@
 bloquant = 0 | soit 0 ou 1, determine si le controle est bloquant pour une réconcilliation si une erreur trouvée par ce contrôle est présente
 obligatoire = 0 | soit 0 ou 1, détermine si le controle doit etre lancé au moins une fois avant de pouvoir réconcillier
-importance = 10000 | de 0 à 10000 (0 étant le plus important), -1 est pour les non définis/non pris en compte
-actif = 0 | soit 0 ou 1, determine si le controle est activé ou non au lancement du plugin
+importance = 9| de 0 à 9 (0 étant le plus important), -1 est pour les non définis/non pris en compte
+actif = 1 | soit 0 ou 1, determine si le controle est activé ou non au lancement du plugin
 cleabs

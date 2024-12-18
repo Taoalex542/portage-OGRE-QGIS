@@ -59,6 +59,5 @@ def seg_intersect(p1, p2, p3, p4):
                     y = (y3 - y4) / 2 + y4
                 else:
                     y = (y4 - y3) / 2 + y3
-                    
         return (x,y)
     return None

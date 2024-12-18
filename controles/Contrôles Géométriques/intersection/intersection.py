@@ -177,9 +177,15 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def intersection(self, func):
     nom_controle = "intersection"
+    importance = get_att(self, "intersection")
     for item in self.dlg_controles.treeWidget.findItems("intersection", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "intersection" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -267,9 +273,9 @@ def intersection(self, func):
                                                             ctrl = QgsFeature()
                                                             ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
                                                             if f.id() == otherf.id():
-                                                                ctrl.setAttributes(["Géométrie", "{} identifiant {} s'auto-intersecte".format(layers.name(), f.id()), layers.name(), test])
+                                                                ctrl.setAttributes([importance, "Géométrie", "{} identifiant {} s'auto-intersecte".format(layers.name(), f.id()), layers.name(), test])
                                                             else:
-                                                                ctrl.setAttributes(["Géométrie", "{} identifiant {} inersecte avec {} identifiant {}".format(layers.name(), f.id(), otherLayers.name(), otherf.id()), layers.name(), test])
+                                                                ctrl.setAttributes([importance, "Géométrie", "{} identifiant {} inersecte avec {} identifiant {}".format(layers.name(), f.id(), otherLayers.name(), otherf.id()), layers.name(), test])
                                                             self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                             self.controlpoint_layer.updateExtents()
                                                 temp = []

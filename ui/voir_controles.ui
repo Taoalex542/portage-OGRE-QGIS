@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>932</width>
+    <width>1202</width>
     <height>307</height>
    </rect>
   </property>
@@ -60,7 +60,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>5</number>
+      <number>6</number>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
@@ -83,6 +83,11 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
+     <column>
+      <property name="text">
+       <string>Importance</string>
+      </property>
+     </column>
      <column>
       <property name="text">
        <string>Coordonnées</string>

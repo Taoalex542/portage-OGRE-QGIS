@@ -121,7 +121,7 @@ class gestion_controles(QDockWidget):
         self.main.dlg_controles.treeWidget.setHeaderHidden(True)
         for controle in self.main.organisation:
             path_len = len(controle)
-            if (controle[4] + ".py" in self.main.loaded_controles and "ctrl_" + controle[4] + ".py" in self.main.loaded_controles): #si le controle est éxécutable
+            if (controle[4] + ".py" in self.main.loaded_controles and "ctrl_" + controle[4] + ".py" in self.main.loaded_controles and controle[3] == 1): #si le controle est éxécutable
                 temp = self.joli_noms(controle)
                 if (path_len == 5): #si le controle est à la racine
                     item = QTreeWidgetItem(self.main.dlg_controles.treeWidget)
@@ -150,10 +150,7 @@ class gestion_controles(QDockWidget):
                         item = QTreeWidgetItem(type)
                     item.setText(0, '%s' % temp[4])
                     item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-                if (controle[3] == 0):
-                    item.setCheckState(0, 0)
-                else:
-                    item.setCheckState(0, 2)
+                item.setCheckState(0, 2)
         if search == False:
             self.append_ctrl_to_list()
         if self.main.dlg_controles.lineEdit.text() != "":

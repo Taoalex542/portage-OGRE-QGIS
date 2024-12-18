@@ -20,7 +20,8 @@ class affichage_controles(QDockWidget):
     def create_controlpoint_layer(self):
         self.main.controlpoint_layer = QgsVectorLayer("Point?crs=IGNF:LAMB93", self.main.controlpoint_layer_name, "memory")
         self.provider = self.main.controlpoint_layer.dataProvider()
-        self.provider.addAttributes([QgsField("type", QVariant.String),
+        self.provider.addAttributes([QgsField("importance", QVariant.Int),
+                                    QgsField("type", QVariant.String),
                                     QgsField("libellé",  QVariant.String),
                                     QgsField("couche", QVariant.String),
                                     QgsField("attributs objet", QVariant.List)])
@@ -94,18 +95,23 @@ class affichage_controles(QDockWidget):
             header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
             header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
             for f in self.main.controlpoint_layer.getFeatures():
                 geom = f.geometry()
                 attributes = f.attributes()
                 # mets les coordonées du contrôle dans la première colone
                 nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', str(QgsGeometry.asPoint(geom)))
                 coords = tuple(zip(*[map(float, nums)] * 2))[0]
-                self.main.dlg_voir.tableWidget.setItem(i , 0, QTableWidgetItem(str(coords)))
+                self.main.dlg_voir.tableWidget.setItem(i , 1, QTableWidgetItem(str(coords)))
                 j = 1
                 # ajoute les attibuts du controle dans le tableau*
                 for info in attributes:
                     temp = info
-                    if (j == 4):
+                    if (j == 1):
+                        self.main.dlg_voir.tableWidget.setItem(i , 0, QTableWidgetItem(str(temp)))
+                        j += 1
+                        continue
+                    if (j == 5):
                         temp = self.add_names_to_values(info)
                     self.main.dlg_voir.tableWidget.setItem(i , j, QTableWidgetItem(str(temp)))
                     j += 1

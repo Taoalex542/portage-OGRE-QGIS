@@ -75,12 +75,18 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def valeur_double(self, func):
     nom_controle = "valeur double"
+    importance = get_att(self, "valeur_double")
     done = []
     for item in self.dlg_controles.treeWidget.findItems("valeur double", QtCore.Qt.MatchRecursive):
-        # vérifie si le contrôle "valeur_double" est coché et si il existe des objets de type Ligne
+        # vérifie si le contrôle "valeur_double" est coché
         if item.checkState(0) == 2:
             items_done = 0
             quantity = get_quantity(self)
@@ -144,7 +150,7 @@ def valeur_double(self, func):
                                                         test.append(layers.fields().names())
                                                         ctrl = QgsFeature()
                                                         ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                        ctrl.setAttributes(["Géométrie", "objet d'identifient {} sur la couche {} possède le même attribut que l'objet avec l'identifiant {}".format(f.id(), layers.name(), otherf.id()), layers.name(), test])
+                                                        ctrl.setAttributes([importance, "Géométrie", "objet d'identifient {} sur la couche {} possède le même attribut que l'objet avec l'identifiant {}".format(f.id(), layers.name(), otherf.id()), layers.name(), test])
                                                         self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                         self.controlpoint_layer.updateExtents()
                                             temp = False

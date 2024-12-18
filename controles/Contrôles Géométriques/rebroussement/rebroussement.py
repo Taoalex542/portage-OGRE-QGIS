@@ -97,9 +97,15 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def rebroussement(self, func):
     nom_controle = "rebroussement"
+    importance = get_att(self, "rebroussement")
     for item in self.dlg_controles.treeWidget.findItems("rebroussement", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "rebroussement" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -157,7 +163,7 @@ def rebroussement(self, func):
                                                 test.append(layers.fields().names())
                                                 ctrl = QgsFeature()
                                                 ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                ctrl.setAttributes(["Géométrie", "Rebroussement", layers.name(), test])
+                                                ctrl.setAttributes([importance, "Géométrie", "Rebroussement", layers.name(), test])
                                                 self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                 self.controlpoint_layer.updateExtents()
                                     temp = []

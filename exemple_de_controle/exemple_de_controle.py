@@ -81,9 +81,15 @@ def reconciliation(self, geom):
             return 0
     return 2
 
+def get_att(self, name):
+    for items in self.organisation:
+        if (name in items):
+            return items[2]
+
 # execution du controle
 def exemple_de_controle(self, func):
     nom_controle = "exemple_de_controle"
+    importance = get_att(self, "exemple_de_controle")
     for item in self.dlg_controles.treeWidget.findItems("exemple_de_controle", QtCore.Qt.MatchRecursive):
         # vérifie si le contrôle "exemple_de_controle" est coché et si il existe des objets de type Ligne
         if item.checkState(0) == 2:
@@ -143,7 +149,7 @@ def exemple_de_controle(self, func):
                                                 test.append(layers.fields().names())
                                                 ctrl = QgsFeature()
                                                 ctrl.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(controles[0], controles[1])))
-                                                ctrl.setAttributes(["Géométrie", "exemple_de_controle", layers.name(), test])
+                                                ctrl.setAttributes([importance, "Géométrie", "exemple_de_controle", layers.name(), test])
                                                 self.controlpoint_layer.dataProvider().addFeature(ctrl)
                                                 self.controlpoint_layer.updateExtents()
                                     temp = []
