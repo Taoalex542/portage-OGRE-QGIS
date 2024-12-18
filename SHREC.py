@@ -97,7 +97,7 @@ class SHREC:
         self.dialog = 0
         self.control_layer_found = False
         self.voir_clicked = False
-        self.controlpoint_layer_name = "SHREC_" + datetime.today().strftime('%d_%m_%Y')
+        self.controlpoint_layer_name = "controles_IGN_" + datetime.today().strftime('%d_%m_%Y')
         self.total_sub_groups = 0
         self.gestion_couches = gestion_couches(self, self.iface)
         self.gestion_controles = gestion_controles(self, self.iface)
