@@ -97,10 +97,7 @@ def doublon(self, func):
                                     bar.setValue(items_done)
                                     nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', part.asWkt()) # regex cherche entre chaque virgule: au moins un chiffre, puis un point, puis une chiffre si il y en a un, avec des parenthèses optionellement
                                     coords = tuple(zip(*[map(float, nums)] * nb_for_tuple(self, part.asWkt()))) # récupère les coordonnées en float et les ajoutes dans un tableau de floats pour une utilisation facile des données antérieurement
-                                    if self.selected == 1:
-                                        olayer = layers.selectedFeatures()
-                                    else:
-                                        olayer = layers.getFeatures()
+                                    olayer = layers.getFeatures()
                                     for otherf in olayer:
                                         otherGeom = otherf.geometry()
                                         if geom.distance(otherGeom) > 100:

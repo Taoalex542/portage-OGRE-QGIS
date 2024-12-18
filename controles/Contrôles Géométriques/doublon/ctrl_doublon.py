@@ -17,6 +17,8 @@ def seg_intersect(p1, p2, p3, p4):
     x2,y2 = p2[0],p2[1]
     x3,y3 = p3[0],p3[1]
     x4,y4 = p4[0],p4[1]
+    x = None
+    y = None
     s1degree = math.atan2(y1 - y2, x1 - x2) 
     s1degree = np.degrees(s1degree)
     s2degree = math.atan2(y3 - y4, x3 - x4) 
@@ -59,5 +61,7 @@ def seg_intersect(p1, p2, p3, p4):
                     y = (y3 - y4) / 2 + y4
                 else:
                     y = (y4 - y3) / 2 + y3
+        if (x == None or y == None):
+            return None
         return (x,y)
     return None

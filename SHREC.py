@@ -72,6 +72,7 @@ class SHREC:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Système Hybride des Reconciliations, Extractions et Contrôles')
+        self.zone_plugin = self.get_zone()
         self.dlg = SHREC_Dialog()
         self.dlg.setFixedSize(self.dlg.size())
         self.dlg_couches = choix_couche()
@@ -299,6 +300,18 @@ class SHREC:
 
 # PARTIE PLUGIN
 
+    def get_zone(self):
+        temp = []
+        filename = ((os.path.dirname(os.path.realpath(__file__)) + "\\nom_couche.txt").replace("SHREC", "createur_de_zone"))
+        if os.path.isfile(filename):
+            f = open(filename)
+            for line in f:
+                temp.append(line)
+            f.close()
+            return temp[0].replace("\n", "")
+        else:
+            return "zone_plugin_createur"
+    
     # récupère les objets cochés dans la fenètre de précisions et les renvoies dans un tableau
     def deuxieme_demande(self, nom, func):
         temp = []
@@ -330,7 +343,7 @@ class SHREC:
     def has_selected(self):
         allLayers = QgsProject.instance().mapLayers().values()
         for layers in allLayers:
-            if layers.name() == "zone_de_réconciliation":
+            if layers.name() == "zone_de_réconciliation" or layers.name() == self.zone_plugin:
                 continue
             layer = layers.selectedFeatures()
             if layer != []:
@@ -365,7 +378,7 @@ class SHREC:
         self.rec = []
         allLayers = QgsProject.instance().mapLayers().values()
         for layers in allLayers:
-            if layers.name() == "zone_de_réconciliation":
+            if layers.name() == "zone_de_réconciliation" or layers.name() == self.zone_plugin:
                 # récupère les informations des couches
                 layer = layers.selectedFeatures()
                 for f in layer:
