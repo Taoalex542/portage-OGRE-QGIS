@@ -103,9 +103,12 @@ class affichage_controles(QDockWidget):
                 nums = re.findall(r'\-?[0-9]+(?:\.[0-9]*)?', str(QgsGeometry.asPoint(geom)))
                 coords = tuple(zip(*[map(float, nums)] * 2))[0]
                 self.main.dlg_voir.tableWidget.setItem(i , 1, QTableWidgetItem(str(coords)))
-                j = 1
-                # ajoute les attibuts du controle dans le tableau*
+                j = 0
+                # ajoute les attibuts du controle dans le tableau
                 for info in attributes:
+                    if j == 0:
+                        j += 1
+                        continue
                     temp = info
                     if (j == 1):
                         self.main.dlg_voir.tableWidget.setItem(i , 0, QTableWidgetItem(str(temp)))
