@@ -302,7 +302,7 @@ class SHREC:
 
     def get_zone(self):
         temp = []
-        filename = ((os.path.dirname(os.path.realpath(__file__)) + "\\nom_couche.txt").replace("SHREC", "createur_de_zone"))
+        filename = ((os.path.dirname(os.path.realpath(__file__)) + "\\nom_couche.txt").replace("SHREC", "CETACE"))
         if os.path.isfile(filename):
             f = open(filename)
             for line in f:
@@ -310,7 +310,7 @@ class SHREC:
             f.close()
             return temp[0].replace("\n", "")
         else:
-            return "zone_plugin_createur"
+            return "zone_plugin_CETACE"
     
     # récupère les objets cochés dans la fenètre de précisions et les renvoies dans un tableau
     def deuxieme_demande(self, nom, func):
