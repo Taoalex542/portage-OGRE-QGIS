@@ -1,5 +1,7 @@
 ce fichier txt est un readme documentant comment créer un contrôle et comment marche le système des contrôles ainsi que les interactions avec QGIS
 
+## À propos
+
 pour ce plugin, un contrôle est composé de 3 fichiers :
 	- le contrôle en soi (ctrl_exemple.py)
 	- le fichier de communication avec QGIS (exemple.py)
@@ -14,7 +16,7 @@ pour appeler ce contrôle dans le lancement des contrôles du plugin, il suffit 
 
 la suite de ce fichier txt parlera de quel fichier fait quoi, et de choses importantes à savoir sur l'utilisation de ces fichiers
 
-param.txt :
+## param.txt
 ce fichier est le fichier de paramètres, il contient 4 lignes obligatoires, le reste des lignes seront considérées en tant que paramètres
 la ligne 1 définit si le contrôle est pour une réconciliation, si une erreur trouvée par ce contrôle est présente
 la ligne 2 définit si le contrôle doit être lancé au moins une fois avant de pouvoir réconcilier
@@ -24,7 +26,7 @@ chaque ligne après la ligne 4 peut être utilisée en tant que paramètre pour 
 s'il manque l'une des 4 lignes obligatoires, le plugin utilisera les valeurs par défaut (0, 0, 10000, 1 respectivement) et avertira l'utilisateur du problème
 
 
-ctrl_exemple.py :
+## ctrl_exemple.py
 le fichier contrôle est le "moteur" du contrôle, il contient là où se fera le contrôle quand il sera exécuté
 il est important de noter que ce fichier est le seul moment où les calculs se feront
 le contrôle récupère les informations de la géométrie (dans le cas de l'exemple, appelé data)
@@ -34,16 +36,18 @@ la fonction ctrl_exemple renvoie un tableau de tuples de coordonnées (x et y) c
 ATTENTION : si autre chose qu'un tuple de coordonnées est ajoutée dans le tableau, la fonction de lien avec QGIS (ici exemple (self, func)) crashera
 l'utilisateur est libre de faire ce qu'il veut en tant que contrôle, tant que ce contrôle renvoie seulement un tableau de tuples
 
-exemple.py :
+## exemple.py
 ce fichier est ce qui permet au contrôle de communiquer avec le plugin et QGIS. Il est composé en deux parties principales : la fonction read() et la fonction exemple()
 
-read() lit le fichier param.txt et récupère les paramètres entrés.
+### read() :
+read()lit le fichier param.txt et récupère les paramètres entrés.
 actuellement il récupère le chiffre entré avec un regex, et vérifie s'il n'est pas plus grand que 50
 si le chiffre entré est plus grand que 50, il renvoie la valeur par défaut (ici 10)
 cette fonction peut lire et extraire autant de paramètres que possible, il suffit juste d'écrire une fonction pour les récupérer
 il est important de noter que les paramètres du contrôle doivent commencer à la 4ème ligne et non avant à cause de la lecture des paramètres de profil du contrôle
 chaque contrôle peut avoir une gestion de paramétrage unique
 
+### exemple() :
 exemple() est la fonction qui parcours les couches et les contrôles unes par unes
 actuellement, cette fonction ne regarde seulement les couches de type lignes, pour changer cela, il suffit de modifier "if ("LineString" not in QgsWkbTypes.displayString(part.wkbType())):" dans la fontion exemple() et la fonction get_quantity()
 il existe 3 types de géométrie :
