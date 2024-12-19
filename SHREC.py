@@ -38,7 +38,7 @@ import re
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .SHREC_dialog import SHREC_Dialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer, dialog
+from .SHREC_dialog import SHREC_Dialog, choix_couche, choix_controles, voir_controles, pas_controles, trop_de_couches, choix_precis, lancer, dialog, dele
 import os.path
 
 
@@ -85,6 +85,8 @@ class SHREC:
         self.dlg_trop.setFixedSize(self.dlg_trop.size())
         self.dlg_dialog = dialog()
         self.dlg_dialog.setFixedSize(self.dlg_dialog.size())
+        self.dlg_dele = dele()
+        self.dlg_dele.setFixedSize(self.dlg_dele.size())
         self.dlg_precis = choix_precis()
         self.dlg_precis.setFixedSize(self.dlg_precis.size())
         self.lancer = lancer()
@@ -99,6 +101,7 @@ class SHREC:
         self.voir_clicked = False
         self.controlpoint_layer_name = "controles_IGN_" + datetime.today().strftime('%d_%m_%Y')
         self.total_sub_groups = 0
+        self.int_dele = 0
         self.gestion_couches = gestion_couches(self, self.iface)
         self.gestion_controles = gestion_controles(self, self.iface)
         self.recherche = recherche(self, self.iface)
