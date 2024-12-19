@@ -1,4 +1,3 @@
+.gitignore
 __pycache__
-Contrôles_IGN.code-workspace
-OGRE.zip
-*gpkg*
+*.code*
